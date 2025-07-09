@@ -1,0 +1,13 @@
+quest_id,quest_type,quest_category,quest_name,description,reward_currency_type,reward_currency_amount,external_link,disable
+101,BotUser,https://app.candydefense.xyz/Images/game.png,Login game,Candy bot user,Gem,1,,0
+102,JoinTelegram,https://app.candydefense.xyz/Images/telegram.png,,Join Telegram Channel,Gem,10,https://t.me/candydefense,1
+103,FollowX,https://app.candydefense.xyz/Images/x.png,Follow Candy Defense,Follow on Twtiter (X),Gem,10, https://x.com/candydefense,0
+104,TelegramPremium,https://app.candydefense.xyz/Images/telegram.png,,Telegram Premium,Gem,200,https://t.me/premium,1
+105,VisitGroup,https://app.candydefense.xyz/Images/telegram.png,Join Candy Defense Community,Visit Group,Gem,5,https://t.me/candydefense,0
+106,Announcement,https://app.candydefense.xyz/Images/telegram.png,Get Updated with Candy Defense,Announcement,Gem,5,https://t.me/candydefenseann,0
+201,Youtube,https://app.candydefense.xyz/Images/youtube.png,,Pepe video 1,Gem,20,https://www.google.com.vn/,1
+202,Youtube,https://app.candydefense.xyz/Images/youtube.png,,Pepe video 2,Gem,20,https://www.google.com.vn/,1
+301,TwitterX,https://app.candydefense.xyz/Images/x.png,,Link post Pepe 1,Gem,20,https://www.google.com.vn/,1
+302,TwitterX,https://app.candydefense.xyz/Images/x.png,Share Candy Defense,Retweet Candy,Gem,5, https://x.com/candydefense/status/1829288326706454998,0
+303,TwitterX,https://app.candydefense.xyz/Images/x.png,,RT Pepe 2,Gem,20,https://www.google.com.vn/,1
+401,CheckinYaytsogram,https://app.candydefense.xyz/Images/Yoytsogram.png,Checkin,"Checkin - ""Yaytsogram""",Gem,10,https://t.me/Yaytsogram_bot/Yaytsogram?startapp=invite8610691,0
