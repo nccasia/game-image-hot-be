@@ -1,42 +1,42 @@
-achievement_id,achievement_type,name,description,amount,reward_currency_type,reward_currency_amount,icon,max_reward_claims_per_day
-101,CompleteWave,Bronze Wave Defender,Complete 50 Waves,50,Gem,1,achievement_101,3
-102,CompleteWave,Silver Wave Defender,Complete 100 Waves,100,Gem,3,achievement_102,3
-103,CompleteWave,Gold Wave Defender,Complete 200 Waves,200,Gem,5,achievement_103,3
-104,CompleteWave,Diamond Wave Defender,Complete 300 Waves,300,Gem,10,achievement_104,3
-201,SummonCount,Bronze Summonner,Summon 10 Times,10,Gem,1,achievement_201,3
-202,SummonCount,Silver Summonner,Summon 15 Times,15,Gem,3,achievement_202,3
-203,SummonCount,Gold Summonner,Summon 30 Times,30,Gem,5,achievement_203,3
-401,KillEnemy,Bronze Destroyer,Kill 100 Enemies,100,Gem,1,achievement_401,3
-402,KillEnemy,Silver Destroyer,Kill 1000 Enemies,1000,Gem,5,achievement_402,3
-403,KillEnemy,Gold Destroyer,Kill 10000 Enemies,10000,Gem,10,achievement_403,3
-404,KillEnemy,Diamond Destroyer,Kill 100000 Enemies,100000,Gem,50,achievement_404,3
-501,CheckIn,Checkin,Checkin 1 time,1,Gem,5,,1
-502,CheckIn,Checkin,Checkin 2 times,2,Gem,2,,1
-503,CheckIn,Checkin,Checkin 3 times,3,Gem,5,,1
-504,CheckIn,Checkin,Checkin 7 times,7,Gem,10,,1
-505,CheckIn,Checkin,Checkin 14 times,14,Gem,15,,1
-506,CheckIn,Checkin,Checkin 30 times,30,Gem,30,,1
-507,CheckIn,Checkin,Checkin 60 times,60,Gem,50,,1
-508,CheckIn,Checkin,Checkin 90 times,90,Gem,80,,1
-509,CheckIn,Checkin,Checkin 120 times,120,Gem,100,,1
-601,PurchaseFirstTime,ETH Consumption,Purchase first time,1,Gem,20,,1
-701,Purchase,ETH Consumption,Consume 0.0063 ETH,0.0063,Gem,20,,1
-702,Purchase,ETH Consumption,Consume 0.0126 ETH,0.0126,Gem,30,,1
-703,Purchase,ETH Consumption,Consume 0.0315 ETH,0.0315,Gem,75,,1
-704,Purchase,ETH Consumption,Consume 0.063 ETH,0.063,Gem,120,,1
-705,Purchase,ETH Consumption,Consume 0.1261 ETH,0.1261,Gem,280,,1
-706,Purchase,ETH Consumption,Consume 0.3153 ETH,0.3153,Gem,480,,1
-707,Purchase,ETH Consumption,Consume 0.6305 ETH,0.6305,Gem,720,,1
-708,Purchase,ETH Consumption,Consume 1.261 ETH,1.261,Gem,1200,,1
-709,Purchase,ETH Consumption,Consume 3.1523 ETH,3.1523,Gem,1800,,1
-801,GemConsumption,Gem Consumption,Consume 200 gems,200,Gem,10,,1
-802,GemConsumption,Gem Consumption,Consume 500 gems,500,Gem,20,,1
-803,GemConsumption,Gem Consumption,Consume 3000 gems,3000,Gem,75,,1
-804,GemConsumption,Gem Consumption,Consume 6000 gems,6000,Gem,120,,1
-805,GemConsumption,Gem Consumption,Consume 15000 gems,15000,Gem,180,,1
-806,GemConsumption,Gem Consumption,Consume 30000 gems,30000,Gem,270,,1
-807,GemConsumption,Gem Consumption,Consume 60000 gems,60000,Gem,360,,1
-808,GemConsumption,Gem Consumption,Consume 150000 gems,150000,Gem,720,,1
-809,GemConsumption,Gem Consumption,Consume 250000 gems,250000,Gem,1080,,1
-810,GemConsumption,Gem Consumption,Consume 500000 gems,500000,Gem,1800,,1
-811,GemConsumption,Gem Consumption,Consume 1000000 gems,1000000,Gem,4000,,1
+achievement_id,achievement_type,name,description,amount,reward_currency_type,reward_currency_amount,icon,max_reward_claims_per_day,disable
+101,CompleteWave,Bronze Wave Defender,Complete 50 Waves,50,Gem,1,achievement_101,3,1
+102,CompleteWave,Silver Wave Defender,Complete 100 Waves,100,Gem,3,achievement_102,3,1
+103,CompleteWave,Gold Wave Defender,Complete 200 Waves,200,Gem,5,achievement_103,3,1
+104,CompleteWave,Diamond Wave Defender,Complete 300 Waves,300,Gem,10,achievement_104,3,1
+201,SummonCount,Bronze Summonner,Summon 10 Times,10,Gem,1,achievement_201,3,1
+202,SummonCount,Silver Summonner,Summon 15 Times,15,Gem,3,achievement_202,3,1
+203,SummonCount,Gold Summonner,Summon 30 Times,30,Gem,5,achievement_203,3,1
+401,KillEnemy,Bronze Destroyer,Kill 100 Enemies,100,Gem,1,achievement_401,3,1
+402,KillEnemy,Silver Destroyer,Kill 1000 Enemies,1000,Gem,5,achievement_402,3,1
+403,KillEnemy,Gold Destroyer,Kill 10000 Enemies,10000,Gem,10,achievement_403,3,1
+404,KillEnemy,Diamond Destroyer,Kill 100000 Enemies,100000,Gem,50,achievement_404,3,1
+501,CheckIn,Checkin,Checkin 1 time,1,Gem,5,,1,1
+502,CheckIn,Checkin,Checkin 2 times,2,Gem,2,,1,1
+503,CheckIn,Checkin,Checkin 3 times,3,Gem,5,,1,1
+504,CheckIn,Checkin,Checkin 7 times,7,Gem,10,,1,1
+505,CheckIn,Checkin,Checkin 14 times,14,Gem,15,,1,1
+506,CheckIn,Checkin,Checkin 30 times,30,Gem,30,,1,1
+507,CheckIn,Checkin,Checkin 60 times,60,Gem,50,,1,1
+508,CheckIn,Checkin,Checkin 90 times,90,Gem,80,,1,1
+509,CheckIn,Checkin,Checkin 120 times,120,Gem,100,,1,1
+601,PurchaseFirstTime,ETH Consumption,Purchase first time,1,Gem,20,,1,1
+701,Purchase,ETH Consumption,Consume 0.0063 ETH,0.0063,Gem,20,,1,1
+702,Purchase,ETH Consumption,Consume 0.0126 ETH,0.0126,Gem,30,,1,1
+703,Purchase,ETH Consumption,Consume 0.0315 ETH,0.0315,Gem,75,,1,1
+704,Purchase,ETH Consumption,Consume 0.063 ETH,0.063,Gem,120,,1,1
+705,Purchase,ETH Consumption,Consume 0.1261 ETH,0.1261,Gem,280,,1,1
+706,Purchase,ETH Consumption,Consume 0.3153 ETH,0.3153,Gem,480,,1,1
+707,Purchase,ETH Consumption,Consume 0.6305 ETH,0.6305,Gem,720,,1,1
+708,Purchase,ETH Consumption,Consume 1.261 ETH,1.261,Gem,1200,,1,1
+709,Purchase,ETH Consumption,Consume 3.1523 ETH,3.1523,Gem,1800,,1,1
+801,GemConsumption,Gem Consumption,Consume 200 gems,200,Gem,10,,1,1
+802,GemConsumption,Gem Consumption,Consume 500 gems,500,Gem,20,,1,1
+803,GemConsumption,Gem Consumption,Consume 3000 gems,3000,Gem,75,,1,1
+804,GemConsumption,Gem Consumption,Consume 6000 gems,6000,Gem,120,,1,1
+805,GemConsumption,Gem Consumption,Consume 15000 gems,15000,Gem,180,,1,1
+806,GemConsumption,Gem Consumption,Consume 30000 gems,30000,Gem,270,,1,1
+807,GemConsumption,Gem Consumption,Consume 60000 gems,60000,Gem,360,,1,1
+808,GemConsumption,Gem Consumption,Consume 150000 gems,150000,Gem,720,,1,1
+809,GemConsumption,Gem Consumption,Consume 250000 gems,250000,Gem,1080,,1,1
+810,GemConsumption,Gem Consumption,Consume 500000 gems,500000,Gem,1800,,1,1
+811,GemConsumption,Gem Consumption,Consume 1000000 gems,1000000,Gem,4000,,1,1

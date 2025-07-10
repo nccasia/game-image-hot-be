@@ -46,12 +46,12 @@ export async function LoadDataConfig() {
   Logger.info(`LoadDataConfig version: ${app_constant.version}`);
   let currentTime = new Date();
   let gameParameter = await GameParameter.findOne({ version: app_constant.version });
-  let achievement = await Achievement.find({});
-  let basicQuest = await BasicQuest.find({ disable: 0});
-  let dailyQuest = await DailyQuest.find({ disable: 0});
+  let achievement = await Achievement.find({ disable: 0 });
+  let basicQuest = await BasicQuest.find({ disable: 0 });
+  let dailyQuest = await DailyQuest.find({ disable: 0 });
   let dlcBundle = await DLCBundle.find({});
-  let photos = await Photos.find({ disable: 0});
-  let tutorial = await Tutorial.find({});
+  let photos = await Photos.find({ disable: 0 });
+  let tutorial = await Tutorial.find({ disable: 0 });
 
   app_constant.gameParameter = gameParameter;
   app_constant.achievement = achievement.map((element) => element.getInfo());
@@ -98,12 +98,9 @@ export enum BASIC_QUEST_TYPE {
 }
 
 export enum DAILY_QUEST_TYPE {
-  CHECK_IN = "CheckIn",
-  LOGIN = "Login",
-  DAILY_PURCHASE = "DailyPurchase",
-  VISIT_CHANNEL = "VisitChannel",
-  DAILY_INVITE = "DailyInvite",
-  VISIT_WEBSITE = "VisitWebsite",
+  LOGIN = "LOGIN",
+  DAILY_GAME = "DAILY_GAME",
+  DAILY_WIN = "DAILY_WIN",
 }
 
 export enum ACHIEVEMENT_TYPE {

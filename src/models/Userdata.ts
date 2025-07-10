@@ -8,6 +8,7 @@ import UserQuestDataSchema, { IUserQuestData } from './embedded/UserQuestData';
 import UserCouponDataSchema, { IUserCouponData } from './embedded/UserCouponData';
 import { app_constant, CURRENCY_TYPE, ACHIEVEMENT_TYPE, TUTORIAL_ACTION, BASIC_QUEST_TYPE, DAILY_QUEST_TYPE } from '../config/constant';
 import { isSameDay, getTimeAtStartOfDay, getTimeAtStartOfWeek } from '../utils/helper';
+import UserStats from '../models/UserStats';
 
 // ---- Main Schema ---- //
 
@@ -358,13 +359,18 @@ UserDataSchema.methods.InitUserTutorialData = async function InitUserTutorialDat
     Logger.info(`${this.GetUserDataLogPrefix()} InitUserTutorialData isReset: ${isReset}`);
     this.user_tutorial = [];
   }
-  if(this.user_tutorial.length == 0) {
-    let tutorial = app_constant.tutorial;
-    for(var info of tutorial) {
+  let listTutorialId = app_constant.tutorial.map((element: any) => element.tutorial_id);
+  this.user_tutorial = this.user_tutorial.filter((element: any) => listTutorialId.includes(element.tutorial_id));
+
+  const userTutorialIds = this.user_tutorial.map((item: any) => item.tutorial_id);
+  const newTutorials = app_constant.tutorial.filter((item: any) => !userTutorialIds.includes(item.tutorial_id));
+
+  if(this.user_tutorial.length == 0 || (!!newTutorials && newTutorials.length > 0)) {
+    for(let i = 0; i < newTutorials.length; i++) {
       let element = {
-        user_tutorial_id: info.tutorial_id,
-        tutorial_name: info.tutorial_name,
-        require_tutorial_name: info.require_tutorial_name,
+        tutorial_id: newTutorials[i].tutorial_id,
+        tutorial_name: newTutorials[i].tutorial_name,
+        require_tutorial_name: newTutorials[i].require_tutorial_name,
         action_type: TUTORIAL_ACTION.NONE,
         recorded: 0,
       }
@@ -627,6 +633,11 @@ UserDataSchema.methods.InitUserDailyQuest = async function InitUserDailyQuest(is
           }
           this.user_daily_quest.push(element);
         }
+        else {
+          if(userDailyQuest.quest_type != dailyQuest[i].quest_type) {
+            userDailyQuest.quest_type = dailyQuest[i].quest_type;
+          }
+        }
       }
     }
   }
@@ -762,16 +773,46 @@ UserDataSchema.methods.UpdateClaimableUserDailyQuest = async function UpdateClai
 UserDataSchema.methods.resetDailyData = async function resetDailyData() {
   let resetDaily = getTimeAtStartOfDay(app_constant.gameParameter.timeZone);
   let resetWeekly = getTimeAtStartOfWeek(app_constant.gameParameter.timeZone);
+  let isDaily = false;
+  let isWeekly = false
   if(this.user_stats.daily_reset_time < resetDaily || this.user_stats.daily_reset_time > resetDaily) {
     this.user_stats.daily_reset_time = resetDaily;
     this.user_stats.daily_gold_earn = 0;
+    this.user_stats.daily_gold_lose = 0;
+    this.user_stats.daily_game_win = 0;
+    this.user_stats.daily_game_lose = 0;
+    this.user_stats.daily_game = 0;
     this.user_coupon.number_of_attempts = app_constant.gameParameter.limit_coupon_failed_per_day;
+
+    isDaily = true;
 
     await this.InitUserDailyQuest(true);
   }
   if(this.user_stats.weekly_reset_time < resetWeekly || this.user_stats.weekly_reset_time > resetWeekly) {
     this.user_stats.weekly_reset_time = resetWeekly;
     this.user_stats.weekly_gold_earn = 0;
+    this.user_stats.weekly_gold_lose = 0;
+    this.user_stats.weekly_game_win = 0;
+    this.user_stats.weekly_game_lose = 0;
+
+    isWeekly = true;
+  }
+  if(isDaily || isWeekly) {
+    let userStatsData = await UserStats.findOne({ userId: this.userId });
+    if(userStatsData) {
+      if(isDaily) {
+        userStatsData.daily_gold_earn = 0;
+        userStatsData.daily_gold_lose = 0;
+        userStatsData.daily_game_win = 0;
+        userStatsData.daily_game_lose = 0;
+      }
+      if(isWeekly) {
+        userStatsData.weekly_gold_earn = 0;
+        userStatsData.weekly_gold_lose = 0;
+        userStatsData.weekly_game_win = 0;
+        userStatsData.weekly_game_lose = 0;
+      }
+    }
   }
 }
 

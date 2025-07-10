@@ -571,6 +571,7 @@ export class CacheUserData {
   }
 
   async OnEndGame(data: any) {
+    Logger.info(`${this.GetUserDataLogPrefix()} OnEndGame data: ${JSON.stringify(data)}`);
     if(data.isWin) {
       this.user_stats.total_gold_earn += data.amount;
       this.user_stats.daily_gold_earn += data.amount;
@@ -578,6 +579,8 @@ export class CacheUserData {
       this.user_stats.total_game_win += 1;
       this.user_stats.daily_game_win += 1;
       this.user_stats.weekly_game_win += 1;
+
+      await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_WIN, this.user_stats.daily_game_win);
     }
     else {
       this.user_stats.total_gold_lose += data.amount;
@@ -587,6 +590,26 @@ export class CacheUserData {
       this.user_stats.daily_game_lose += 1;
       this.user_stats.weekly_game_lose += 1;
     }
+    this.user_stats.daily_game++;
+    await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_GAME, this.user_stats.daily_game);
     await this.SaveData();
+  }
+
+  async UpdateDailyQuestData(questType: DAILY_QUEST_TYPE, amount: number) {
+    let result = [];
+    const questInfo = this.GetDailyQuestByType(questType);
+    for(var questItem of questInfo) {
+      let userQuest = this.GetUserDailyQuest(questItem.quest_id);
+      if(userQuest) {
+        if(!userQuest.claimable && !userQuest.claimed && questItem.quest_quantity <= amount) {
+          userQuest.claimable = true;
+          result.push(userQuest);
+        }
+      }
+    }
+    if(result.length > 0) {
+      Logger.info(`${this.GetUserDataLogPrefix()} UpdateDailyQuestData questType: ${questType} amount: ${amount} result: ${JSON.stringify(result)}`);
+    }
+    return result;
   }
 }

@@ -10,6 +10,7 @@ export interface IAchievement extends Document {
   reward_currency_amount: number;
   icon: string;
   max_reward_claims_per_day: number;
+  disable: number;
 
   getInfo(): {
     achievement_id: number;
@@ -21,6 +22,7 @@ export interface IAchievement extends Document {
     reward_currency_amount: number;
     icon: string;
     max_reward_claims_per_day: number;
+    disable: number;
   };
 }
 
@@ -35,6 +37,7 @@ const AchievementSchema = new Schema<IAchievement>(
     reward_currency_amount: { type: Number, default: 0 },
     icon: { type: String, default: '' },
     max_reward_claims_per_day: { type: Number, default: 1 },
+    disable: { type: Number, default: 0 },
   },
   {
     toJSON: {
@@ -65,6 +68,7 @@ AchievementSchema.methods.getInfo = function () {
     reward_currency_amount: this.reward_currency_amount,
     icon: this.icon,
     max_reward_claims_per_day: this.max_reward_claims_per_day,
+    disable: this.disable,
   };
 };
 

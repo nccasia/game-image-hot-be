@@ -1,7 +1,4 @@
-quest_id,quest_type,quest_category,quest_name,description,reward_currency_type,reward_currency_amount,external_link,disable
-1,CheckIn,https://app.candydefense.xyz/Images/game.png,Check in game,Check in,Gem,5,,0
-2,Login,https://app.candydefense.xyz/Images/game.png,Login game,Login to Candy,Gem,1,,0
-3,DailyPurchase,https://app.candydefense.xyz/Images/game.png,Purchase,Daily purchase,Gem,5,,0
-4,DailyInvite,https://app.candydefense.xyz/Images/game.png,Invite Friend,Daily Invite,Gem,5,,1
-5,VisitChannel,https://app.candydefense.xyz/Images/telegram.png,Visit Channel,Visit Channel and Engage,Gem,10,https://www.google.com.vn/,1
-6,VisitWebsite,https://app.candydefense.xyz/Images/telegram.png,Visit Website,Visit official website,Gem,5,https://www.google.com.vn/,1
+quest_id,quest_type,quest_category,quest_name,description,quest_quantity,reward_currency_type,reward_currency_amount,external_link,disable
+1,LOGIN,Game,Login game,Login to Best Guess,1,Gem,1,,0
+2,DAILY_GAME,Game,Play game,Play 5 game,5,Gem,1,,0
+3,DAILY_WIN,Game,Win game,Win 5 game,5,Gem,1,,0

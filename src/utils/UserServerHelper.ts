@@ -6,6 +6,5 @@ export async function LoginMezonInUserServer(authData: string) {
     authData
   };
   const result = await fetchUserServerApi(path, "POST", data);
-  console.log(result);
   return result;
 }

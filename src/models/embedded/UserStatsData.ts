@@ -13,6 +13,7 @@ export interface IUserStatsData extends Document {
   total_game_lose: number;
   daily_game_lose: number;
   weekly_game_lose: number;
+  daily_game: number;
   daily_reset_time: Date;
   weekly_reset_time: Date;
 
@@ -29,6 +30,7 @@ export interface IUserStatsData extends Document {
     total_game_lose: number;
     daily_game_lose: number;
     weekly_game_lose: number;
+    daily_game: number;
     daily_reset_time: Date;
     weekly_reset_time: Date;
   };
@@ -50,6 +52,7 @@ const UserStatsDataSchema = new Schema<IUserStatsData>(
     total_game_lose: { type: Number, default: 0 },
     daily_game_lose: { type: Number, default: 0 },
     weekly_game_lose: { type: Number, default: 0 },
+    daily_game: { type: Number, default: 0 },
     daily_reset_time: { type: Date, default: Date.now },
     weekly_reset_time: { type: Date, default: Date.now },
   },
@@ -73,6 +76,7 @@ UserStatsDataSchema.methods.getInfo = function () {
     total_game_lose: this.total_game_lose,
     daily_game_lose: this.daily_game_lose,
     weekly_game_lose: this.weekly_game_lose,
+    daily_game: this.daily_game,
     daily_reset_time: this.daily_reset_time,
     weekly_reset_time: this.weekly_reset_time,
   };
@@ -91,6 +95,7 @@ UserStatsDataSchema.methods.ResetData = function () {
   this.total_game_lose = 0;
   this.daily_game_lose = 0;
   this.weekly_game_lose = 0;
+  this.daily_game = 0;
 };
 
 UserStatsDataSchema.set('toJSON', {

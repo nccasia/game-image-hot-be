@@ -6,6 +6,7 @@ export interface IDailyQuest extends Document {
   quest_category: string;
   quest_name: string;
   description: string;
+  quest_quantity: number;
   reward_currency_type: string;
   reward_currency_amount: number;
   external_link: string;
@@ -17,6 +18,7 @@ export interface IDailyQuest extends Document {
     quest_category: string;
     quest_name: string;
     description: string;
+    quest_quantity: number;
     reward_currency_type: string;
     reward_currency_amount: number;
     external_link: string;
@@ -31,6 +33,7 @@ const DailyQuestSchema = new Schema<IDailyQuest>(
     quest_category: { type: String, default: '' },
     quest_name: { type: String, default: '' },
     description: { type: String, default: '' },
+    quest_quantity: { type: Number, default: 0 },
     reward_currency_type: { type: String, default: '' },
     reward_currency_amount: { type: Number, default: 0 },
     external_link: { type: String, default: '' },
@@ -55,6 +58,7 @@ DailyQuestSchema.methods.getInfo = function () {
     quest_category: this.quest_category,
     quest_name: this.quest_name,
     description: this.description,
+    quest_quantity: this.quest_quantity,
     reward_currency_type: this.reward_currency_type,
     reward_currency_amount: this.reward_currency_amount,
     external_link: this.external_link,
