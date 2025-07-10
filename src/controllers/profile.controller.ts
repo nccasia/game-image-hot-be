@@ -15,6 +15,7 @@ import { isValidEmail, isValidReferralCode } from '../utils/validator.utils';
 import { ACCOUNT_TYPE } from '../config/constant';
 import { GenerateHash, CreateShake256Hash } from '../utils/helper';
 import { LoginMezonInUserServer } from '../utils/UserServerHelper';
+import { UserServerSocket, IOReturn, Status } from '../services/userserverSocket.service';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -435,6 +436,47 @@ export const AddCurrencyToAccount = async (req: Request, res: Response, next: Ne
     return;
   } catch (err) {
     Logger.error(`Error AddCurrencyToAccount ${ErrorMessage.INTERNAL_SERVER_ERROR} err: ${err}`);
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json(
+      SendErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR, ErrorMessage.INTERNAL_SERVER_ERROR)
+    );
+    return;
+  }
+};
+
+export const getBalance = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    Logger.info(`Request getBalance ${JSON.stringify(req.user_jwt)}`);
+    const userData = await GetUserData(req.user_jwt.userId);
+
+    if(!userData) {
+      Logger.error(`Error GetLeaderboardByName ${ErrorMessage.USER_NOT_FOUND} userId: ${req.user_jwt.userId} userData: ${userData}`);
+      res.status(HttpStatusCode.OK).json(
+        SendErrorMessage(ErrorCode.USER_NOT_FOUND, ErrorMessage.USER_NOT_FOUND)
+      );
+      return;
+    }
+
+    if(userData.mezonId == null || userData.mezonId == "") {
+      Logger.error(`Warning getBalance ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId}`);
+      res.status(HttpStatusCode.OK).json({
+          status: 0,
+          message: "OK",
+          data: {
+            user: userData.mezonId,
+            balance: 0,
+            pendingBalance: 0
+          }
+      });
+      return;
+    }
+    UserServerSocket.instance.getBalance(userData.mezonId as string, (response: IOReturn) => {
+      res.status(HttpStatusCode.OK).json({
+          ...response,
+      });
+      return;
+    });
+  } catch (err) {
+    Logger.error(`Error getBalance ${ErrorMessage.INTERNAL_SERVER_ERROR} err: ${err}`);
     res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json(
       SendErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR, ErrorMessage.INTERNAL_SERVER_ERROR)
     );

@@ -570,6 +570,23 @@ const components = {
           },
         },
       },
+      UserBalance: {
+        type: "object",
+        properties: {
+          user: {
+            type: "string",
+            example: "1831536726649081856",
+          },
+          balance: {
+            type: "integer",
+            example: 1,
+          },
+          pendingBalance: {
+            type: "integer",
+            example: 1,
+          },
+        },
+      },
       leaderboardItem: {
         allOf: [
           {

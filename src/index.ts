@@ -15,6 +15,7 @@ import expressBasicAuth from 'express-basic-auth';
 import swaggerUi from "swagger-ui-express";
 import swaggerDocument from './swagger/swagger';
 import { SocketService } from './services/socket.service';
+import { UserServerSocket } from './services/userserverSocket.service';
 import { startCronJobs } from './cron/BackupLeaderboard';
 
 import apiRouter from './routes';
@@ -122,6 +123,7 @@ connectToDatabase()
     app.listen(port, () => {
       console.log(`🚀 Server running on http://localhost:${port}`);
       SocketService.instance.start();
+      UserServerSocket.instance.connect();
       startCronJobs();
     });
   })

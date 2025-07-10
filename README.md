@@ -24,7 +24,7 @@ npm run dev
 - Register an admin account: /api/v1/users/register
 - Goto database and change role to 'admin'
 # Setup data
-- Login admin account to get access token
+- Login admin account to get access token: /api/v1/users/login
 - Run setup game config: /api/v1/config/setup-game-config
 
 ===================
