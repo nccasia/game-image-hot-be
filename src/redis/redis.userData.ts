@@ -571,6 +571,7 @@ export class CacheUserData {
   }
 
   async OnEndGame(data: any) {
+    let result: any = [];
     Logger.info(`${this.GetUserDataLogPrefix()} OnEndGame data: ${JSON.stringify(data)}`);
     if(data.isWin) {
       this.user_stats.total_gold_earn += data.amount;
@@ -580,7 +581,8 @@ export class CacheUserData {
       this.user_stats.daily_game_win += 1;
       this.user_stats.weekly_game_win += 1;
 
-      await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_WIN, this.user_stats.daily_game_win);
+      let dailyWins = await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_WIN, this.user_stats.daily_game_win);
+      result = [...result, ...dailyWins];
     }
     else {
       this.user_stats.total_gold_lose += data.amount;
@@ -591,13 +593,16 @@ export class CacheUserData {
       this.user_stats.weekly_game_lose += 1;
     }
     this.user_stats.daily_game++;
-    await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_GAME, this.user_stats.daily_game);
+    let dailyGames = await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_GAME, this.user_stats.daily_game);
+    result = [...result, ...dailyGames];
     await this.SaveData();
+    Logger.info(`${this.GetUserDataLogPrefix()} OnEndGame result: ${JSON.stringify(result)}`);
+    return result;
   }
 
   async UpdateDailyQuestData(questType: DAILY_QUEST_TYPE, amount: number) {
     let result = [];
-    const questInfo = this.GetDailyQuestByType(questType);
+    const questInfo = app_constant.dailyQuest.filter((element: any) => element.quest_type == questType);
     for(var questItem of questInfo) {
       let userQuest = this.GetUserDailyQuest(questItem.quest_id);
       if(userQuest) {

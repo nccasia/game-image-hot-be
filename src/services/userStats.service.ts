@@ -29,13 +29,17 @@ export async function OnEndGame(data: any): Promise<any> {
       userStatsData.weekly_game_lose += 1;
     }
     await userStatsData.save();
-    result.push(userStatsData);
     let userData = await GetUserData(userId);
     if(userData) {
-      await userData.OnEndGame(element);
+      let questUpdated = await userData.OnEndGame(element);
+      let newData = {
+        userId,
+        dailyQuest: questUpdated,
+      }
+      result.push(newData);
     }
   }
-  return result.map(element => element.getInfo());
+  return result;
 }
 
 export async function GetAllUserStats() {

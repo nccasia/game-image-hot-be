@@ -1,6 +1,7 @@
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as fsExtra from 'fs-extra';
+import path from 'path';
 
 import dotenv from 'dotenv';
 dotenv.config();
@@ -130,7 +131,7 @@ export function formatDateYYYYMMDD(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-export function writeDataToCSV(headers: any, data: any, filename: string) {
+export async function writeDataToCSV(headers: any, data: any, filename: string) {
   const backupFolder = "backup";
   if (!fsExtra.existsSync(backupFolder)) {
     console.log("create folder");
@@ -148,7 +149,29 @@ export function writeDataToCSV(headers: any, data: any, filename: string) {
     writeStream.write(row.join(',') + '\n');  // Ghi dữ liệu vào file CSV, mỗi giá trị cách nhau bởi dấu phẩy
   });
 
-  writeStream.end(() => {
+  writeStream.end(async () => {
     console.log(`Data saved in CSV file ${filename}`);
+    const prefix = filename.split('_')[0];
+    const maxFile = parseInt(process.env.MAX_LOG_FILES ?? '15');
+    await cleanOldFiles(backupFolder, prefix, maxFile);
   });
+}
+
+export async function cleanOldFiles(folder: string, prefix: string, maxFiles: number) {
+  const files = fs.readdirSync(folder)
+    .filter(file => file.startsWith(prefix) && file.endsWith('.csv'))
+    .map(file => ({
+      name: file,
+      fullPath: path.join(folder, file),
+      mtime: fs.statSync(path.join(folder, file)).mtime.getTime()
+    }))
+    .sort((a, b) => b.mtime - a.mtime); // newest first
+
+  if (files.length > maxFiles) {
+    const filesToDelete = files.slice(maxFiles);
+    for (const file of filesToDelete) {
+      fs.unlinkSync(file.fullPath);
+      console.log(`Deleted old file: ${file.name}`);
+    }
+  }
 }

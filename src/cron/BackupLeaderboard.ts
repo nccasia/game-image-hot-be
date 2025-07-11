@@ -430,7 +430,7 @@ async function SaveLeaderboardAndExportToCSV(leaderboardName: string, data: any[
       headers = ['Name', 'MezonId', 'Ranking', 'Game'];
       break;
   }
-  writeDataToCSV(headers, data, filename);
+  await writeDataToCSV(headers, data, filename);
 }
 
 export async function startCronJobs() {
