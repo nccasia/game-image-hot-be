@@ -31,10 +31,10 @@ export async function OnEndGame(data: any): Promise<any> {
     await userStatsData.save();
     let userData = await GetUserData(userId);
     if(userData) {
-      let questUpdated = await userData.OnEndGame(element);
+      let endGameData = await userData.OnEndGame(element);
       let newData = {
         userId,
-        dailyQuest: questUpdated,
+        ...endGameData,
       }
       result.push(newData);
     }
