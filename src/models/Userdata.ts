@@ -347,7 +347,7 @@ UserDataSchema.methods.InitUserAchievement = async function InitUserAchievement(
 UserDataSchema.methods.InitUserBaseData = async function InitUserBaseData(isReset: boolean) {
   if(this.isFirstTimeLogin || isReset) {
     Logger.info(`${this.GetUserDataLogPrefix()} InitUserBaseData isReset: ${isReset} isFirstTimeLogin: ${this.isFirstTimeLogin}`);
-    this.user_data.user_gold = 500;
+    this.user_data.user_gold = 0;
     this.user_data.user_gem = 0;
     this.user_coupon.number_of_attempts = app_constant.gameParameter.limit_coupon_failed_per_day;
     this.isFirstTimeLogin = false;

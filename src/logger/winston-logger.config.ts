@@ -10,7 +10,7 @@ const getCallerInfo = () => {
   let lastNodeModulesCaller = 'unknown';
   let callingFunction = 'unknownFunction';
 
-  for (const line of stackLines) {
+  for (let line of stackLines) {
     // Extract function name if available
     const functionMatch = line.match(/at (.+?) \(/);
     if (functionMatch && functionMatch[1] !== 'Error') {
@@ -33,7 +33,7 @@ const getCallerInfo = () => {
       }
 
       // If it's outside node_modules and not this config file, return it immediately
-      if (!filePath.includes('node_modules') && !filePath.includes('winston-logger.config.ts')) {
+      if (!filePath.includes('node_modules') && !filePath.includes('winston-logger.config')) {
         return `${callingFunction} [${filePath}:${lineNumber}]`;
       }
     }

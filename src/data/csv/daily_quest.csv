@@ -1,4 +1,4 @@
 quest_id,quest_type,quest_category,quest_name,description,quest_quantity,reward_currency_type,reward_currency_amount,external_link,disable
-1,LOGIN,Game,Login game,Login to Best Guess,1,Gem,1,,0
-2,DAILY_GAME,Game,Play game,Play 5 game,5,Gem,1,,0
-3,DAILY_WIN,Game,Win game,Win 5 game,5,Gem,1,,0
+1,LOGIN,Game,Login game,Login to Best Guess,1,Gold,1,,0
+2,DAILY_GAME,Game,Play game,Play 5 games,5,Gold,1,,0
+3,DAILY_WIN,Game,Win game,Win 5 games,5,Gold,1,,0
