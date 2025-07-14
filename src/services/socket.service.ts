@@ -151,7 +151,7 @@ export class SocketService {
             return;
           }
 
-          await OnEndGame(gameData);
+          data = await OnEndGame(gameData);
           result = ResponseMessage(RESPONSE_STATUS.SUCCESS, RESPONSE_MESSAGE.SUCCESS, data);
           Logger.info(`✅ Event 'endGame' socketId: ${socket.id} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
           if (typeof callback === 'function') {
