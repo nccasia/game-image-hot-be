@@ -155,6 +155,10 @@ const components = {
           description: {
             type: "string",
           },
+          quest_quantity: {
+            type: "integer",
+            example: 1,
+          },
           reward_currency_type: {
             type: "string",
           },
@@ -189,6 +193,10 @@ const components = {
           },
           description: {
             type: "string",
+          },
+          quest_quantity: {
+            type: "integer",
+            example: 1,
           },
           reward_currency_type: {
             type: "string",
