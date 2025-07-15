@@ -610,8 +610,15 @@ export class CacheUserData {
       let userQuest = this.GetUserDailyQuest(questItem.quest_id);
       if(userQuest) {
         if(!userQuest.claimable && !userQuest.claimed && questItem.quest_quantity <= amount) {
+          userQuest.amount = amount;
           userQuest.claimable = true;
           result.push(userQuest);
+        }
+        else {
+          if(questItem.quest_quantity > amount) {
+            userQuest.amount = amount;
+            result.push(userQuest);
+          }
         }
       }
     }

@@ -605,10 +605,12 @@ UserDataSchema.methods.InitUserDailyQuest = async function InitUserDailyQuest(is
       let element = {
         quest_id: dailyQuest[i].quest_id,
         quest_type: dailyQuest[i].quest_type,
+        amount: 0,
         claimable: false,
         claimed: false,
       }
       if(dailyQuest[i].quest_type == DAILY_QUEST_TYPE.LOGIN) {
+        element.amount = 1;
         element.claimable = true;
       }
       this.user_daily_quest.push(element);
@@ -625,10 +627,12 @@ UserDataSchema.methods.InitUserDailyQuest = async function InitUserDailyQuest(is
           let element = {
             quest_id: dailyQuest[i].quest_id,
             quest_type: dailyQuest[i].quest_type,
+            amount: 0,
             claimable: false,
             claimed: false,
           }
           if(dailyQuest[i].quest_type == DAILY_QUEST_TYPE.LOGIN) {
+            element.amount = 1;
             element.claimable = true;
           }
           this.user_daily_quest.push(element);
