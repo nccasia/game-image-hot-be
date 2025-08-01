@@ -74,11 +74,11 @@ export async function setupDatabase() {
         const gameParameterList = await GameParameter.insertMany(jsonData, options);
         app_constant.gameParameter = gameParameterList.find(gp => gp.version == app_constant.version);
         break;
-      case DATA_FILE.PHOTOS:
-        await Photos.deleteMany({});
-        let photos = (await Photos.insertMany(jsonData, options)).filter(element => !element.disable);
-        app_constant.photos = photos.map((element) => element.getInfo());
-        break;
+      // case DATA_FILE.PHOTOS:
+      //   await Photos.deleteMany({});
+      //   let photos = (await Photos.insertMany(jsonData, options)).filter(element => !element.disable);
+      //   app_constant.photos = photos.map((element) => element.getInfo());
+      //   break;
       case DATA_FILE.TUTORIAL:
         await Tutorial.deleteMany({});
         let tutorial = (await Tutorial.insertMany(jsonData, options)).filter(element => !element.disable);

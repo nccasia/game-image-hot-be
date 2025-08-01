@@ -399,6 +399,104 @@ async function BackupWeeklyGameLoseLeaderboard(userDataList: CacheUserData[], re
   SaveLeaderboardAndExportToCSV(LEADERBOARD_TYPE.WEEKLY_GAME_LOSE, leaderboards, resetTime);
 }
 
+async function BackupTotalGoldChangeLeaderboard(userDataList: CacheUserData[], resetTime: Date) {
+  let userDatas = userDataList.sort(function(a, b){
+    if(a.user_stats.total_gold_change == b.user_stats.total_gold_change) {
+        let aUpdateAt = new Date(a.updatedAt);
+        let bUpdateAt = new Date(b.updatedAt);
+        return aUpdateAt.getTime() - bUpdateAt.getTime();
+      }
+    return b.user_stats.total_gold_change - a.user_stats.total_gold_change;
+  });
+
+  let leaderboards = [];
+  for(var i = 0; i < userDatas.length; i++) {
+    let leaderboardItem = {
+      ...userDatas[i].getSimpleInfo(),
+      value: userDatas[i].user_stats.total_gold_change,
+      rank: i + 1
+    }
+    leaderboards.push(leaderboardItem);
+  }
+  SaveLeaderboardAndExportToCSV(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, leaderboards, resetTime);
+}
+
+async function BackupDailyGoldChangeLeaderboard(userDataList: CacheUserData[], resetTime: Date) {
+  let userDatas = userDataList.sort(function(a, b){
+    if(a.user_stats.daily_reset_time == b.user_stats.daily_reset_time) {
+      if(a.user_stats.daily_gold_change == b.user_stats.daily_gold_change) {
+        let aUpdateAt = new Date(a.updatedAt);
+        let bUpdateAt = new Date(b.updatedAt);
+        return aUpdateAt.getTime() - bUpdateAt.getTime();
+      }
+      return b.user_stats.daily_gold_change - a.user_stats.daily_gold_change;
+    }
+    let aResetTime = new Date(a.user_stats.daily_reset_time);
+    let bResetTime = new Date(b.user_stats.daily_reset_time);
+    return bResetTime.getTime() - aResetTime.getTime();
+  });
+
+  let leaderboards = [];
+  for(var i = 0; i < userDatas.length; i++) {
+    let leaderboardItem = {};
+    let aResetTime = new Date(userDatas[i].user_stats.daily_reset_time);
+    if(aResetTime < resetTime) {
+      leaderboardItem = {
+        ...userDatas[i].getSimpleInfo(),
+        value: 0,
+        rank: i + 1
+      }
+    }
+    else {
+      leaderboardItem = {
+        ...userDatas[i].getSimpleInfo(),
+        value: userDatas[i].user_stats.daily_gold_change,
+        rank: i + 1
+      }
+    }
+    leaderboards.push(leaderboardItem);
+  }
+  SaveLeaderboardAndExportToCSV(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, leaderboards, resetTime);
+}
+
+async function BackupWeeklyGoldChangeLeaderboard(userDataList: CacheUserData[], resetTime: Date) {
+  let userDatas = userDataList.sort(function(a, b){
+    if(a.user_stats.weekly_reset_time == b.user_stats.weekly_reset_time) {
+      if(a.user_stats.weekly_gold_change == b.user_stats.weekly_gold_change) {
+        let aUpdateAt = new Date(a.updatedAt);
+        let bUpdateAt = new Date(b.updatedAt);
+        return aUpdateAt.getTime() - bUpdateAt.getTime();
+      }
+      return b.user_stats.weekly_gold_change - a.user_stats.weekly_gold_change;
+    }
+    let aResetTime = new Date(a.user_stats.weekly_reset_time);
+    let bResetTime = new Date(b.user_stats.weekly_reset_time);
+    return bResetTime.getTime() - aResetTime.getTime();
+  });
+
+  let leaderboards = [];
+  for(var i = 0; i < userDatas.length; i++) {
+    let leaderboardItem = {};
+    let aResetTime = new Date(userDatas[i].user_stats.weekly_reset_time);
+    if(aResetTime < resetTime) {
+      leaderboardItem = {
+        ...userDatas[i].getSimpleInfo(),
+        value: 0,
+        rank: i + 1
+      }
+    }
+    else {
+      leaderboardItem = {
+        ...userDatas[i].getSimpleInfo(),
+        value: userDatas[i].user_stats.weekly_gold_change,
+        rank: i + 1
+      }
+    }
+    leaderboards.push(leaderboardItem);
+  }
+  SaveLeaderboardAndExportToCSV(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, leaderboards, resetTime);
+}
+
 async function SaveLeaderboardAndExportToCSV(leaderboardName: string, data: any[], resetTime: Date) {
   Logger.info(`Backup leaderboard leaderboardName: ${leaderboardName} length: ${data.length}`);
   SaveLeaderboard(leaderboardName, data);
@@ -415,10 +513,13 @@ async function SaveLeaderboardAndExportToCSV(leaderboardName: string, data: any[
   switch(leaderboardName) {
     case LEADERBOARD_TYPE.TOTAL_GOLD_EARN:
     case LEADERBOARD_TYPE.TOTAL_GOLD_LOSE:
+    case LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE:
     case LEADERBOARD_TYPE.DAILY_GOLD_EARN:
     case LEADERBOARD_TYPE.DAILY_GOLD_LOSE:
+    case LEADERBOARD_TYPE.DAILY_GOLD_CHANGE:
     case LEADERBOARD_TYPE.WEEKLY_GOLD_EARN:
     case LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE:
+    case LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE:
       headers = [
         { key: 'username', label: 'Name' },
         { key: 'mezonId', label: 'MezonId' },
@@ -467,6 +568,10 @@ export async function startCronJobs() {
       await BackupTotalGameLoseLeaderboard(userDataList, resetWeekly);
       await BackupDailyGameLoseLeaderboard(userDataList, resetDaily);
       await BackupWeeklyGameLoseLeaderboard(userDataList, resetWeekly);
+
+      await BackupTotalGoldChangeLeaderboard(userDataList, resetWeekly);
+      await BackupDailyGoldChangeLeaderboard(userDataList, resetDaily);
+      await BackupWeeklyGoldChangeLeaderboard(userDataList, resetWeekly);
     } catch (err) {
       Logger.error(`Error cron job err: ${err}`);
     }

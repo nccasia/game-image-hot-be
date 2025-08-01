@@ -171,6 +171,7 @@ export async function OnBetGame(gameId: string, players: string[], playerWallets
     }
     const betGameTx = await gameMasterContract.betGame(data.itx, data.gameId, data.players, data.playerBets);
     await betGameTx.wait();
+    await transactionHistory.updateOne({ $set: { 'tx_hash': betGameTx.hash } });
     Logger.info(`Transaction hash of betGame: ${betGameTx.hash}`);
   }
   return data;
@@ -185,8 +186,8 @@ export async function OnEndGame(transactionBetGame: ITransactionHistory, winner:
   signData.user_id = winner;
   signData.winner = winerAddress;
   let winnerAmount = 0;
-  for(let i = 0; i < transactionBetGame.players.length; i++) {
-    if(transactionBetGame.players[i] != winerAddress) {
+  for(let i = 0; i < transactionBetGame.player_wallets.length; i++) {
+    if(transactionBetGame.player_wallets[i] != winerAddress) {
       winnerAmount += transactionBetGame.player_bets[i];
     }
   }
@@ -210,6 +211,7 @@ export async function OnEndGame(transactionBetGame: ITransactionHistory, winner:
     }
     const endGameTx = await gameMasterContract.endGame(data.itx, data.gameId, data.winner);
     await endGameTx.wait();
+    await transactionHistory.updateOne({ $set: { 'tx_hash': endGameTx.hash } });
     Logger.info(`Transaction hash of endGame: ${endGameTx.hash}`);
   }
   

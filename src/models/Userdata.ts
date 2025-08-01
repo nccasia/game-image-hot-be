@@ -794,6 +794,7 @@ UserDataSchema.methods.resetDailyData = async function resetDailyData() {
     this.user_stats.daily_gold_lose = 0;
     this.user_stats.daily_game_win = 0;
     this.user_stats.daily_game_lose = 0;
+    this.user_stats.daily_gold_change = 0;
     this.user_stats.daily_game = 0;
     this.user_coupon.number_of_attempts = app_constant.gameParameter.limit_coupon_failed_per_day;
 
@@ -807,6 +808,7 @@ UserDataSchema.methods.resetDailyData = async function resetDailyData() {
     this.user_stats.weekly_gold_lose = 0;
     this.user_stats.weekly_game_win = 0;
     this.user_stats.weekly_game_lose = 0;
+    this.user_stats.weekly_gold_change = 0;
 
     isWeekly = true;
   }
@@ -818,12 +820,14 @@ UserDataSchema.methods.resetDailyData = async function resetDailyData() {
         userStatsData.daily_gold_lose = 0;
         userStatsData.daily_game_win = 0;
         userStatsData.daily_game_lose = 0;
+        userStatsData.daily_gold_change = 0;
       }
       if(isWeekly) {
         userStatsData.weekly_gold_earn = 0;
         userStatsData.weekly_gold_lose = 0;
         userStatsData.weekly_game_win = 0;
         userStatsData.weekly_game_lose = 0;
+        userStatsData.weekly_gold_change = 0;
       }
     }
   }

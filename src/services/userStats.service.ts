@@ -21,6 +21,9 @@ export async function OnEndGameUserStat(transactionEndGame: ITransactionHistory)
       userStatsData.total_game_win += 1;
       userStatsData.daily_game_win += 1;
       userStatsData.weekly_game_win += 1;
+      userStatsData.total_gold_change += transactionEndGame.winner_amount;
+      userStatsData.daily_gold_change += transactionEndGame.winner_amount;
+      userStatsData.weekly_gold_change += transactionEndGame.winner_amount;
       amountChange = transactionEndGame.winner_amount;
     }
     else {
@@ -30,6 +33,9 @@ export async function OnEndGameUserStat(transactionEndGame: ITransactionHistory)
       userStatsData.total_game_lose += 1;
       userStatsData.daily_game_lose += 1;
       userStatsData.weekly_game_lose += 1;
+      userStatsData.total_gold_change -= amount;
+      userStatsData.daily_gold_change -= amount;
+      userStatsData.weekly_gold_change -= amount;
       amountChange = amount
     }
     await userStatsData.save();

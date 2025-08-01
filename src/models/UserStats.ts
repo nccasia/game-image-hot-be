@@ -14,6 +14,9 @@ export interface IUserStats extends Document {
   total_game_lose: number;
   daily_game_lose: number;
   weekly_game_lose: number;
+  total_gold_change: number;
+  daily_gold_change: number;
+  weekly_gold_change: number;
 
   getInfo(): Omit<IUserStats, '_id' | '__v' | 'getInfo'>;
 }
@@ -33,6 +36,9 @@ const UserStatsSchema = new Schema<IUserStats>(
     total_game_lose: { type: Number, default: 0 },
     daily_game_lose: { type: Number, default: 0 },
     weekly_game_lose: { type: Number, default: 0 },
+    total_gold_change: { type: Number, default: 0 },
+    daily_gold_change: { type: Number, default: 0 },
+    weekly_gold_change: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
@@ -52,6 +58,9 @@ UserStatsSchema.methods.getInfo = function () {
     total_game_lose: this.total_game_lose,
     daily_game_lose: this.daily_game_lose,
     weekly_game_lose: this.weekly_game_lose,
+    total_gold_change: this.total_gold_change,
+    daily_gold_change: this.daily_gold_change,
+    weekly_gold_change: this.weekly_gold_change,
   };
 };
 

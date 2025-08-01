@@ -601,6 +601,9 @@ export class CacheUserData {
       this.user_stats.total_game_win += 1;
       this.user_stats.daily_game_win += 1;
       this.user_stats.weekly_game_win += 1;
+      this.user_stats.total_gold_change += amount;
+      this.user_stats.daily_gold_change += amount;
+      this.user_stats.weekly_gold_change += amount;
 
       let dailyWins = await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_WIN, this.user_stats.daily_game_win);
       result.dailyQuest = [...result.dailyQuest, ...dailyWins];
@@ -613,6 +616,9 @@ export class CacheUserData {
       this.user_stats.total_game_lose += 1;
       this.user_stats.daily_game_lose += 1;
       this.user_stats.weekly_game_lose += 1;
+      this.user_stats.total_gold_change -= amount;
+      this.user_stats.daily_gold_change -= amount;
+      this.user_stats.weekly_gold_change -= amount;
     }
     this.user_stats.daily_game++;
     let dailyGames = await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_GAME, this.user_stats.daily_game);
