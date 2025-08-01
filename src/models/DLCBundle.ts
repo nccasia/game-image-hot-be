@@ -7,13 +7,7 @@ export interface IDLCBundle extends Document {
   rootPath: string;
   priority: number;
 
-  getInfo(): {
-    bundleName: string;
-    version: number;
-    type: string;
-    rootPath: string;
-    priority: number;
-  };
+  getInfo(): Omit<IDLCBundle, '_id' | '__v' | 'getInfo'>;
 }
 
 const DLCBundleSchema = new Schema<IDLCBundle>(
@@ -27,7 +21,7 @@ const DLCBundleSchema = new Schema<IDLCBundle>(
   {
     toJSON: {
       virtuals: true,
-      transform: (_doc, ret) => {
+      transform: (_doc, ret: any) => {
         delete ret._id;
         delete ret.__v;
         delete ret.id;

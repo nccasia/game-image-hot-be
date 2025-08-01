@@ -7,13 +7,7 @@ export interface IPhotoEloHistory extends Document {
   changed_at: Date;
   match_result: string;
 
-  getInfo(): {
-    photo_id: string;
-    score_before: number;
-    score_after: number;
-    changed_at: Date;
-    match_result: string;
-  };
+  getInfo(): Omit<IPhotoEloHistory, '_id' | '__v' | 'getInfo'>;
 }
 
 const PhotoEloHistorySchema: Schema<IPhotoEloHistory> = new Schema(

@@ -1,5 +1,5 @@
 import express from 'express';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 import cors from 'cors';
 import morgan from "morgan";
 import rateLimit from "express-rate-limit";
@@ -17,6 +17,7 @@ import swaggerDocument from './swagger/swagger';
 import { SocketService } from './services/socket.service';
 import { UserServerSocket } from './services/userserverSocket.service';
 import { startCronJobs } from './cron/BackupLeaderboard';
+import { initGameMasterContract } from './blockchain/contract/GameMaster.contract';
 
 import apiRouter from './routes';
 
@@ -40,6 +41,7 @@ const loggerRoutes = [
   "quest",
   "leaderboard",
   "coupon",
+  "transaction",
 ];
 
 // Limit
@@ -123,8 +125,12 @@ connectToDatabase()
     app.listen(port, () => {
       console.log(`🚀 Server running on http://localhost:${port}`);
       SocketService.instance.start();
-      UserServerSocket.instance.connect();
+      if(process.env.USE_USER_SERVER == 'true') {
+        UserServerSocket.instance.connect();
+      }
+      
       startCronJobs();
+      initGameMasterContract();
     });
   })
   .catch((err) => {

@@ -12,18 +12,7 @@ export interface IBasicQuest extends Document {
   external_link: string;
   disable: number;
 
-  getInfo(): {
-    quest_id: number;
-    quest_type: string;
-    quest_category: string;
-    quest_name: string;
-    description: string;
-    quest_quantity: number;
-    reward_currency_type: string;
-    reward_currency_amount: number;
-    external_link: string;
-    disable: number;
-  };
+  getInfo(): Omit<IBasicQuest, '_id' | '__v' | 'getInfo'>;
 }
 
 const BasicQuestSchema = new Schema<IBasicQuest>(
@@ -42,7 +31,7 @@ const BasicQuestSchema = new Schema<IBasicQuest>(
   {
     toJSON: {
       virtuals: true,
-      transform: (_doc, ret) => {
+      transform: (_doc, ret: any) => {
         delete ret._id;
         delete ret.__v;
         delete ret.id;

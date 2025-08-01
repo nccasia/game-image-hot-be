@@ -7,7 +7,7 @@ import { SendErrorMessage } from '../utils/helper';
 import jwt, { JwtPayload } from "jsonwebtoken";
 import User from '../models/User';
 
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 const adminAuth = async (req: Request, res: Response, next: NextFunction): Promise<void> => {

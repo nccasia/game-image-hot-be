@@ -12,18 +12,7 @@ export interface IAchievement extends Document {
   max_reward_claims_per_day: number;
   disable: number;
 
-  getInfo(): {
-    achievement_id: number;
-    achievement_type: string;
-    name: string;
-    description: string;
-    amount: number;
-    reward_currency_type: string;
-    reward_currency_amount: number;
-    icon: string;
-    max_reward_claims_per_day: number;
-    disable: number;
-  };
+  getInfo(): Omit<IAchievement, '_id' | '__v' | 'getInfo'>;
 }
 
 const AchievementSchema = new Schema<IAchievement>(
@@ -42,7 +31,7 @@ const AchievementSchema = new Schema<IAchievement>(
   {
     toJSON: {
       virtuals: true,
-      transform: (_doc, ret) => {
+      transform: (_doc, ret: any) => {
         delete ret._id;
         delete ret.__v;
         delete ret.id;

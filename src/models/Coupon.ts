@@ -16,18 +16,7 @@ export interface ICoupon extends Document {
   canUseSameType: boolean;
   canUseSameCode: boolean;
 
-  getInfo(): {
-    code: string;
-    type: string;
-    reward: ICouponReward;
-    start_time: Date;
-    end_time: Date;
-    claimable: boolean;
-    max_use: number;
-    remain_use: number;
-    canUseSameType: boolean;
-    canUseSameCode: boolean;
-  };
+  getInfo(): Omit<ICoupon, '_id' | '__v' | 'getInfo'>;
 }
 
 const CouponSchema = new Schema<ICoupon>(
@@ -46,7 +35,7 @@ const CouponSchema = new Schema<ICoupon>(
   {
     toJSON: {
       virtuals: true,
-      transform: (_doc, ret) => {
+      transform: (_doc, ret: any) => {
         delete ret._id;
         delete ret.__v;
         delete ret.id;

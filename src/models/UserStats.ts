@@ -15,21 +15,7 @@ export interface IUserStats extends Document {
   daily_game_lose: number;
   weekly_game_lose: number;
 
-  getInfo(): {
-    userId: String;
-    total_gold_earn: number;
-    daily_gold_earn: number;
-    weekly_gold_earn: number;
-    total_gold_lose: number;
-    daily_gold_lose: number;
-    weekly_gold_lose: number;
-    total_game_win: number;
-    daily_game_win: number;
-    weekly_game_win: number;
-    total_game_lose: number;
-    daily_game_lose: number;
-    weekly_game_lose: number;
-  };
+  getInfo(): Omit<IUserStats, '_id' | '__v' | 'getInfo'>;
 }
 
 const UserStatsSchema = new Schema<IUserStats>(

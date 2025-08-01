@@ -9,7 +9,8 @@ import achievementRoutes from './achievement.route';
 import questRoutes from './quest.route';
 import leaderboardRoutes from './leaderboard.route';
 import couponRoutes from './coupon.route';
-import photosRoutes from './photos.route'
+import photosRoutes from './photos.route';
+import transactionRoutes from './transaction.route';
 
 const router: Router = express.Router();
 
@@ -23,5 +24,6 @@ router.use('/', questRoutes);
 router.use('/', leaderboardRoutes);
 router.use('/', couponRoutes);
 router.use('/', photosRoutes);
+router.use('/', transactionRoutes);
 
 export default router;

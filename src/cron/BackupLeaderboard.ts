@@ -419,7 +419,12 @@ async function SaveLeaderboardAndExportToCSV(leaderboardName: string, data: any[
     case LEADERBOARD_TYPE.DAILY_GOLD_LOSE:
     case LEADERBOARD_TYPE.WEEKLY_GOLD_EARN:
     case LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE:
-      headers = ['Name', 'MezonId', 'Ranking', 'Gold'];
+      headers = [
+        { key: 'username', label: 'Name' },
+        { key: 'mezonId', label: 'MezonId' },
+        { key: 'rank', label: 'Ranking' },
+        { key: 'value', label: 'Gold' },
+      ];
       break;
     case LEADERBOARD_TYPE.TOTAL_GAME_WIN:
     case LEADERBOARD_TYPE.TOTAL_GAME_LOSE:
@@ -427,7 +432,12 @@ async function SaveLeaderboardAndExportToCSV(leaderboardName: string, data: any[
     case LEADERBOARD_TYPE.DAILY_GAME_LOSE:
     case LEADERBOARD_TYPE.WEEKLY_GAME_WIN:
     case LEADERBOARD_TYPE.WEEKLY_GAME_LOSE:
-      headers = ['Name', 'MezonId', 'Ranking', 'Game'];
+      headers = [
+        { key: 'username', label: 'Name' },
+        { key: 'mezonId', label: 'MezonId' },
+        { key: 'rank', label: 'Ranking' },
+        { key: 'value', label: 'Game' },
+      ];
       break;
   }
   await writeDataToCSV(headers, data, filename);

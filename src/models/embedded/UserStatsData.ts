@@ -17,23 +17,7 @@ export interface IUserStatsData extends Document {
   daily_reset_time: Date;
   weekly_reset_time: Date;
 
-  getInfo(): {
-    total_gold_earn: number;
-    daily_gold_earn: number;
-    weekly_gold_earn: number;
-    total_gold_lose: number;
-    daily_gold_lose: number;
-    weekly_gold_lose: number;
-    total_game_win: number;
-    daily_game_win: number;
-    weekly_game_win: number;
-    total_game_lose: number;
-    daily_game_lose: number;
-    weekly_game_lose: number;
-    daily_game: number;
-    daily_reset_time: Date;
-    weekly_reset_time: Date;
-  };
+  getInfo(): Omit<IUserStatsData, '_id' | '__v' | 'getInfo'>;
 
   ResetData(): void;
 }
@@ -99,7 +83,7 @@ UserStatsDataSchema.methods.ResetData = function () {
 };
 
 UserStatsDataSchema.set('toJSON', {
-  transform: (_doc, ret) => {
+  transform: (_doc, ret: any) => {
     delete ret._id;
     delete ret.__v;
     delete ret.id;

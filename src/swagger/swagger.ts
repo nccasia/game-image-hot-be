@@ -6,6 +6,7 @@ import swaggerFriend from "./v1/swagger-friend";
 import swaggerLeaderboard from "./v1/swagger-leaderboard";
 import swaggerQuest from "./v1/swagger-quest";
 import swaggerTest from "./v1/swagger-test";
+import swaggerTransaction from "./v1/swagger-transaction";
 import swaggerTutorial from "./v1/swagger-tutorial";
 import swaggerUser from "./v1/swagger-user";
 
@@ -17,6 +18,7 @@ const path = {
   ...swaggerLeaderboard,
   ...swaggerQuest,
   ...swaggerTest,
+  //...swaggerTransaction,
   ...swaggerTutorial,
   ...swaggerUser,
 }
@@ -30,7 +32,11 @@ const swaggerDocument = {
   },
   servers: [
     {
-      url: "http://10.10.41.224:5014/",
+      url: "https://image-hot-api.ncc.studio",
+      description: "[NCC Domain]",
+    },
+    {
+      url: "http://10.10.41.233:5014",
       description: "[Dev Domain]",
     },
   ],

@@ -1,6 +1,6 @@
 import { Logger } from '../logger/winston-logger.config';
 import Redis, { Cluster } from 'ioredis';
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 let redisClient: Redis | Cluster;

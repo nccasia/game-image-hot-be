@@ -7,13 +7,7 @@ export interface IGameParameter extends Document {
   rating_factor: number;
   random_question_amount: number;
 
-  getInfo(): {
-    version: number;
-    timeZone: number;
-    limit_coupon_failed_per_day: number;
-    rating_factor: number;
-    random_question_amount: number;
-  };
+  getInfo(): Omit<IGameParameter, '_id' | '__v' | 'getInfo'>;
 }
 
 const GameParameterSchema = new Schema<IGameParameter>(
@@ -26,7 +20,7 @@ const GameParameterSchema = new Schema<IGameParameter>(
   },
   {
     toJSON: {
-      transform: (_doc, ret) => {
+      transform: (_doc, ret: any) => {
         delete ret._id;
         delete ret.__v;
         delete ret.id;

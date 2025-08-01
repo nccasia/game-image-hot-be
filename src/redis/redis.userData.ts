@@ -1,13 +1,17 @@
 import { Logger } from '../logger/winston-logger.config';
 import { SaveUserData } from './redis.utils';
-import { app_constant, CURRENCY_TYPE, ACHIEVEMENT_TYPE, TUTORIAL_ACTION, BASIC_QUEST_TYPE, DAILY_QUEST_TYPE } from '../config/constant';
+import { app_constant, CURRENCY_TYPE, ACHIEVEMENT_TYPE, TUTORIAL_ACTION, BASIC_QUEST_TYPE, DAILY_QUEST_TYPE, CONTRACT_EVENT } from '../config/constant';
 import { isSameDay, getTimeAtStartOfDay, getTimeAtStartOfWeek } from '../utils/helper';
+import TransactionHistory from '../models/TransactionHistory';
+import { createGameSignature, generateTxId } from '../services/signature.service';
+import { ethers } from 'ethers';
 
 interface CacheData {
   _id: string;
   userId: string;
   username: string;
   mezonId?: string;
+  walletAddress?: string;
   level?: number;
   isFirstTimeLogin?: boolean;
   user_friend_info?: any;
@@ -18,6 +22,7 @@ interface CacheData {
   user_daily_quest?: any;
   user_basic_quest?: any;
   user_coupon?: any;
+  user_pending_itx?: any;
   updatedAt: string;
 }
 
@@ -26,6 +31,7 @@ export class CacheUserData {
   userId: string = '';
   username?: string;
   mezonId?: string;
+  walletAddress?: string;
   level?: number;
   isFirstTimeLogin?: boolean;
   user_friend_info?: any;
@@ -36,6 +42,7 @@ export class CacheUserData {
   user_daily_quest?: any;
   user_basic_quest?: any;
   user_coupon?: any;
+  user_pending_itx?: any;
   updatedAt: string = '';
 
   constructor(cacheData: Partial<CacheData>) {
@@ -44,6 +51,7 @@ export class CacheUserData {
       this._id = cacheData._id || '';
       this.username = cacheData.username;
       this.mezonId = cacheData.mezonId;
+      this.walletAddress = cacheData.walletAddress;
       this.level = cacheData.level;
       this.isFirstTimeLogin = cacheData.isFirstTimeLogin;
       this.user_friend_info = cacheData.user_friend_info;
@@ -54,6 +62,7 @@ export class CacheUserData {
       this.user_daily_quest = cacheData.user_daily_quest;
       this.user_basic_quest = cacheData.user_basic_quest;
       this.user_coupon = cacheData.user_coupon;
+      this.user_pending_itx = cacheData.user_pending_itx;
       this.updatedAt = cacheData.updatedAt || '';
     }
   }
@@ -64,6 +73,7 @@ export class CacheUserData {
       userDataId: this._id,
       username: this.username,
       mezonId: this.mezonId,
+      walletAddress: this.walletAddress,
       level: this.level,
       user_friend_info: this.user_friend_info,
       user_achievement: this.user_achievement,
@@ -72,6 +82,7 @@ export class CacheUserData {
       user_basic_quest: this.user_basic_quest,
       user_daily_quest: this.user_daily_quest,
       //user_coupon: this.user_coupon,
+      user_pending_itx: this.user_pending_itx,
     };
   };
   
@@ -168,6 +179,15 @@ export class CacheUserData {
       await this.SaveData();
     }
   };
+
+  async updateWallet(walletAddress: string) {
+    if(this.walletAddress != walletAddress) {
+      Logger.info(`${this.GetUserDataLogPrefix()} updateWallet newWalletAddress: ${walletAddress} oldWalletAddress: ${this.walletAddress}`);
+      this.walletAddress = walletAddress;
+
+      await this.SaveData();
+    }
+  }
   
   /**
    * Get currency
@@ -570,14 +590,14 @@ export class CacheUserData {
     return result;
   }
 
-  async OnEndGame(data: any) {
+  async OnEndGame(isWin: boolean, amount: number) {
     let result: any = {};
     result.dailyQuest = [];
-    Logger.info(`${this.GetUserDataLogPrefix()} OnEndGame data: ${JSON.stringify(data)}`);
-    if(data.isWin) {
-      this.user_stats.total_gold_earn += data.amount;
-      this.user_stats.daily_gold_earn += data.amount;
-      this.user_stats.weekly_gold_earn += data.amount;
+    Logger.info(`${this.GetUserDataLogPrefix()} OnEndGame isWin: ${isWin} amount: ${amount}`);
+    if(isWin) {
+      this.user_stats.total_gold_earn += amount;
+      this.user_stats.daily_gold_earn += amount;
+      this.user_stats.weekly_gold_earn += amount;
       this.user_stats.total_game_win += 1;
       this.user_stats.daily_game_win += 1;
       this.user_stats.weekly_game_win += 1;
@@ -587,9 +607,9 @@ export class CacheUserData {
       result.dailyGameWin = this.user_stats.daily_game_win;
     }
     else {
-      this.user_stats.total_gold_lose += data.amount;
-      this.user_stats.daily_gold_lose += data.amount;
-      this.user_stats.weekly_gold_lose += data.amount;
+      this.user_stats.total_gold_lose += amount;
+      this.user_stats.daily_gold_lose += amount;
+      this.user_stats.weekly_gold_lose += amount;
       this.user_stats.total_game_lose += 1;
       this.user_stats.daily_game_lose += 1;
       this.user_stats.weekly_game_lose += 1;
@@ -626,5 +646,50 @@ export class CacheUserData {
       Logger.info(`${this.GetUserDataLogPrefix()} UpdateDailyQuestData questType: ${questType} amount: ${amount} result: ${JSON.stringify(result)}`);
     }
     return result;
+  }
+
+  async SignBetGame(amount: number) {
+    let data = {
+      user_address: this.walletAddress,
+      user_id: this.userId,
+      amount,
+      chain_id: process.env.CHAIN_ID,
+      contract: process.env.MASTER_CONTRACT_ADDRESS,
+      signature: "",
+    }
+    let transactionHistory = await TransactionHistory.create({
+      event: CONTRACT_EVENT.BET_GAME,
+      ...data,
+    });
+    const signParams = {
+      user_address: data.user_address,
+      itx: generateTxId(transactionHistory.id.toString()),
+      user_id: data.user_id,
+      amount: ethers.utils.parseEther(data.amount.toString()).toString(),
+      contract: data.contract,
+    }
+    let signature = await createGameSignature(signParams);
+    await transactionHistory.updateOne({ $set: { 'itx': signParams.itx ,'signature': signature } });
+    let result = {
+      itx: signParams.itx,
+      userId: signParams.user_id,
+      amount: signParams.amount,
+      signature: signature,
+    }
+    Logger.info(`${this.GetUserDataLogPrefix()} SignBetGame result: ${JSON.stringify(result)}`);
+    return result;
+  }
+
+  async addPendingItx(itx: string) {
+    if(!this.user_pending_itx.includes(itx)) {
+      Logger.info(`${this.GetUserDataLogPrefix()} addPendingItx itx: ${itx}`);
+      this.user_pending_itx.push(itx);
+      await this.SaveData();
+    }
+  }
+
+  async handlePendingItx(itx: string) {
+    this.user_pending_itx = this.user_pending_itx.filter((element: any) => element != itx);
+    await this.SaveData();
   }
 }

@@ -5,11 +5,7 @@ export interface IUserCouponData extends Document {
   coupon_types: string[];
   number_of_attempts: number;
 
-  getInfo(): {
-    coupons: string[];
-    coupon_types: string[];
-    number_of_attempts: number;
-  };
+  getInfo(): Omit<IUserCouponData, '_id' | '__v' | 'getInfo'>;
 }
 
 const UserCouponDataSchema = new Schema<IUserCouponData>(
@@ -33,7 +29,7 @@ UserCouponDataSchema.methods.getInfo = function () {
 };
 
 UserCouponDataSchema.set('toJSON', {
-  transform: (_doc, ret) => {
+  transform: (_doc, ret: any) => {
     delete ret._id;
     delete ret.__v;
     delete ret.id;

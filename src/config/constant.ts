@@ -9,7 +9,7 @@ import Tutorial from "../models/Tutorial";
 
 import { GetGameDataConfigUpdateTime } from "../redis/redis.utils";
 
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 interface AppConstant {
@@ -180,4 +180,23 @@ export enum RESPONSE_MESSAGE {
   NOT_ENOUGH_BALANCE = "Not enough balance",
   NOT_ENOUGH_AVAILABLE_BALANCE = "You don't have enough available balance because it's already being used in another game.",
   NOT_ENOUGH_BETTING_BALANCE = "Not enough betting balance",
+}
+
+export enum CONTRACT_EVENT {
+  DEPOSITED = "Deposited",
+  WITHDRAWN = "Withdrawn",
+  WITHDRAWN_WITH_SIGNATURE = "WithdrawnWithSignature",
+  BET_GAME = "BetGame",
+  GAME_ENDED = "GameEnded",
+  BET_CLEARED = "BetCleared",
+}
+
+export const SIGNATURE_TYPE: Record<string, string> = {
+  user_address: 'address',
+  itx: 'bytes32',
+  user_id: 'string',
+  amount: 'uint256',
+  players: 'address[]',
+  amounts: 'uint256[]',
+  contract: "address"
 }
