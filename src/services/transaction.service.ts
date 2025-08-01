@@ -40,10 +40,6 @@ export async function SaveTransaction(data: any, status: boolean): Promise<ITran
     let transactionInfo: any;
     if(data.itx != null) {
       transactionInfo = await TransactionHistory.findOneAndUpdate({ itx: data.itx, status: false }, { ...data, status });
-      if(transactionInfo && transactionInfo.event == CONTRACT_EVENT.GAME_ENDED) {
-        const userData = await GetUserData(transactionInfo.user_id);
-        await userData.handlePendingItx(transactionInfo.itx);
-      }
     }
     else {
       transactionInfo = await GetTransactionInfo(data.tx_hash);
