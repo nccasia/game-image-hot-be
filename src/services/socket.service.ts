@@ -287,12 +287,22 @@ export class SocketService {
             return;
           }
 
+          let isBetGameTxUsed = await isTxUsed(transactionBetGame.itx);
+          if(!isBetGameTxUsed) {
+            result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.TRANSACTION_NOT_FOUND, data);
+              Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.TRANSACTION_NOT_FOUND} ${userData.GetUserDataLogPrefix()} betGame itx: ${transactionBetGame.itx} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+              if (typeof callback === 'function') {
+                callback(result);
+              }
+              return;
+          }
+
           let transactionEndGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.GAME_ENDED });
           if(transactionEndGame) {
             let isUsed = await isTxUsed(transactionEndGame.itx);
             if(isUsed) {
               result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.TRANSACTION_ALREADY_ENDED, data);
-              Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.TRANSACTION_ALREADY_ENDED} ${userData.GetUserDataLogPrefix()} itx: ${transactionEndGame.itx} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+              Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.TRANSACTION_ALREADY_ENDED} ${userData.GetUserDataLogPrefix()} endGame itx: ${transactionEndGame.itx} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
               if (typeof callback === 'function') {
                 callback(result);
               }

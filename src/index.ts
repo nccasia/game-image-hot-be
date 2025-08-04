@@ -18,6 +18,7 @@ import { SocketService } from './services/socket.service';
 import { UserServerSocket } from './services/userserverSocket.service';
 import { startCronJobs } from './cron/BackupLeaderboard';
 import { initGameMasterContract } from './blockchain/contract/GameMaster.contract';
+import { ScheduleEndGame } from './cron/ScheduleEndGame';
 
 import apiRouter from './routes';
 
@@ -131,6 +132,7 @@ connectToDatabase()
       
       startCronJobs();
       initGameMasterContract();
+      ScheduleEndGame();
     });
   })
   .catch((err) => {

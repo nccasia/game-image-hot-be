@@ -200,11 +200,20 @@ export const endGame = async (req: Request, res: Response, next: NextFunction): 
       return;
     }
 
+    let isBetGameTxUsed = await isTxUsed(transactionBetGame.itx);
+    if(!isBetGameTxUsed) {
+      Logger.error(`Warning Business endGame ${ErrorMessage.TRANSACTION_NOT_FOUND} ${userData.GetUserDataLogPrefix()} betGame itx: ${transactionBetGame.itx} gameId: ${gameId} winner: ${winner} transactionBetGame: ${transactionBetGame}`);
+      res.status(HttpStatusCode.OK).json(
+        SendErrorMessage(ErrorCode.TRANSACTION_NOT_FOUND, ErrorMessage.TRANSACTION_NOT_FOUND)
+      );
+      return;
+    }
+
     let transactionEndGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.GAME_ENDED });
     if(transactionEndGame) {
       let isUsed = await isTxUsed(transactionEndGame.itx);
       if(isUsed) {
-        Logger.error(`Warning Business betGame ${ErrorMessage.TRANSACTION_ALREADY_ENDED} gameId: ${gameId} winner: ${winner} itx: ${transactionEndGame.itx}`);
+        Logger.error(`Warning Business endGame ${ErrorMessage.TRANSACTION_ALREADY_ENDED} gameId: ${gameId} winner: ${winner} itx: ${transactionEndGame.itx}`);
         res.status(HttpStatusCode.OK).json(
           SendErrorMessage(ErrorCode.TRANSACTION_ALREADY_ENDED, ErrorMessage.TRANSACTION_ALREADY_ENDED)
         );

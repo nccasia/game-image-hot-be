@@ -171,7 +171,7 @@ export async function OnBetGame(gameId: string, players: string[], playerWallets
     }
     const betGameTx = await gameMasterContract.betGame(data.itx, data.gameId, data.players, data.playerBets);
     await betGameTx.wait();
-    await transactionHistory.updateOne({ $set: { 'tx_hash': betGameTx.hash } });
+    await transactionHistory.updateOne({ $set: { 'tx_hash': betGameTx.hash, status: true } });
     Logger.info(`Transaction hash of betGame: ${betGameTx.hash}`);
   }
   return data;
@@ -211,9 +211,37 @@ export async function OnEndGame(transactionBetGame: ITransactionHistory, winner:
     }
     const endGameTx = await gameMasterContract.endGame(data.itx, data.gameId, data.winner);
     await endGameTx.wait();
-    await transactionHistory.updateOne({ $set: { 'tx_hash': endGameTx.hash } });
+    await transactionHistory.updateOne({ $set: { 'tx_hash': endGameTx.hash, status: true } });
     Logger.info(`Transaction hash of endGame: ${endGameTx.hash}`);
   }
   
   return await OnEndGameUserStat(transactionHistory);
+}
+
+export async function OnEndGameRecheck(): Promise<any> {
+  try {
+    let data: any = {};
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60 * 1000);
+    let transactionEndGames = await TransactionHistory.find({ event: CONTRACT_EVENT.GAME_ENDED, status: false, createdAt: { $lte: tenMinutesAgo } });
+    for(let endGame of transactionEndGames) {
+      Logger.info(`Handle transaction endGame: ${endGame.itx}`);
+      let isUsed = await isTxUsed(endGame.itx);
+      if(!isUsed) {
+        data = {
+          itx: endGame.itx,
+          gameId: endGame.game_id,
+          winner: endGame.winner,
+        }
+        const endGameTx = await gameMasterContract.endGame(data.itx, data.gameId, data.winner);
+        await endGameTx.wait();
+        await endGame.updateOne({ $set: { 'tx_hash': endGameTx.hash, status: true } });
+        Logger.info(`Transaction hash of endGame: ${endGameTx.hash}`);
+      }
+      else {
+        await endGame.updateOne({ $set: { status: true } });
+      }
+    }
+  } catch(e) {
+    Logger.error(`❌ Error in 'ScheduleEndGame' event: ${e}`);
+  }
 }
