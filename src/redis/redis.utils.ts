@@ -2,7 +2,8 @@ import { Logger } from "../logger/winston-logger.config";
 import redisClient from "./redis.config";
 import redlock from "./redlock.config";
 import { Cluster } from "ioredis";
-import { GetGameDataConfigKey, GetUserMezonIdKey, GetUserDataKey, GetUserFriendCodeKey, GetAllUserDataPatternByHashTag, GetLeaderboardKey } from "./redis.contant";
+import { GetGameDataConfigKey, GetUserMezonIdKey, GetUserDataKey, GetUserFriendCodeKey, GetAllUserDataPatternByHashTag, 
+  GetLeaderboardKey, GetLeaderboardKey2 } from "./redis.contant";
 import { CacheUserData } from "./redis.userData";
 
 export async function GetRedisKeyData(key: string, retryCount: number = 5): Promise<any> {
@@ -149,4 +150,48 @@ export async function GetLeaderboard(rankname: string): Promise<any> {
   catch( err) {
     Logger.error(`Error GetLeaderboard rankname: ${rankname} err: ${err}`);
   }
+}
+
+export async function SaveLeaderboard2(rankname: string, userId: string, data: number) {
+  await redisClient.zincrby(GetLeaderboardKey2(rankname), data, userId);
+}
+
+export async function DeleteLeaderboard(rankname: string) {
+  await redisClient.del(GetLeaderboardKey2(rankname));
+}
+
+export async function GetLeaderboardTopRange(rankname: string, from: number, to: number) {
+  const raw = await redisClient.zrevrange(GetLeaderboardKey2(rankname), from, to - 1, 'WITHSCORES');
+  const result = [];
+  for (let i = 0; i < raw.length; i += 2) {
+    const userData = await GetUserData(raw[i]);
+    result.push({
+      username: userData.username,
+      userId: raw[i],
+      value: Number(raw[i + 1]),
+      rank: from + i / 2 + 1,
+    });
+  }
+  return result;
+}
+
+export async function GetUserRank(rankname: string, userId: string, username: string | undefined) {
+  const rank = await redisClient.zrevrank(GetLeaderboardKey2(rankname), userId);
+  const score = await redisClient.zscore(GetLeaderboardKey2(rankname), userId);
+
+  if (rank === null) {
+    return { username, userId, rank: 0, value: 0 };
+  }
+
+  return {
+    username, 
+    userId,
+    rank: rank + 1,
+    value: parseFloat(score ?? '0'),
+  };
+}
+
+export async function GetLeaderboardSize(rankname: string): Promise<number> {
+  const size = await redisClient.zcard(GetLeaderboardKey2(rankname));
+  return size;
 }

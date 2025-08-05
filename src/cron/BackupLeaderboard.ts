@@ -2,7 +2,7 @@ import { Logger } from '../logger/winston-logger.config';
 import cron from 'node-cron';
 import { app_constant, LEADERBOARD_TYPE } from '../config/constant';
 import { getTimeAtStartOfDay, getTimeAtStartOfWeek } from '../utils/helper';
-import { GetAllUserDataByPattern, SaveLeaderboard } from '../redis/redis.utils';
+import { GetAllUserDataByPattern, SaveLeaderboard, DeleteLeaderboard, GetLeaderboardTopRange } from '../redis/redis.utils';
 import { formatDateYYYYMMDD, writeDataToCSV } from '../utils/helper';
 import Leaderboard from '../models/Leaderboard';
 import { CacheUserData } from '../redis/redis.userData';
@@ -497,6 +497,11 @@ async function BackupWeeklyGoldChangeLeaderboard(userDataList: CacheUserData[], 
   SaveLeaderboardAndExportToCSV(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, leaderboards, resetTime);
 }
 
+async function BackupLeaderboard(leaderboardName: string, resetTime: Date) {
+  let leaderboards = await GetLeaderboardTopRange(leaderboardName, 0, 0);
+  SaveLeaderboardAndExportToCSV(leaderboardName, leaderboards, resetTime);
+}
+
 async function SaveLeaderboardAndExportToCSV(leaderboardName: string, data: any[], resetTime: Date) {
   Logger.info(`Backup leaderboard leaderboardName: ${leaderboardName} length: ${data.length}`);
   SaveLeaderboard(leaderboardName, data);
@@ -521,6 +526,7 @@ async function SaveLeaderboardAndExportToCSV(leaderboardName: string, data: any[
     case LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE:
     case LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE:
       headers = [
+        { key: 'userId', label: 'UserId' },
         { key: 'username', label: 'Name' },
         { key: 'mezonId', label: 'MezonId' },
         { key: 'rank', label: 'Ranking' },
@@ -534,6 +540,7 @@ async function SaveLeaderboardAndExportToCSV(leaderboardName: string, data: any[
     case LEADERBOARD_TYPE.WEEKLY_GAME_WIN:
     case LEADERBOARD_TYPE.WEEKLY_GAME_LOSE:
       headers = [
+        { key: 'userId', label: 'UserId' },
         { key: 'username', label: 'Name' },
         { key: 'mezonId', label: 'MezonId' },
         { key: 'rank', label: 'Ranking' },
@@ -546,39 +553,83 @@ async function SaveLeaderboardAndExportToCSV(leaderboardName: string, data: any[
 
 export async function startCronJobs() {
   // Run every minute
-  cron.schedule('55 * * * *', async () => {
+  // cron.schedule('55 * * * *', async () => {
+  //   let resetDaily = getTimeAtStartOfDay(app_constant.gameParameter.timeZone);
+  //   let resetWeekly = getTimeAtStartOfWeek(app_constant.gameParameter.timeZone);
+
+  //   console.log('⏰ Running task every hour at minute 55: ', new Date().toISOString());
+  //   try {
+  //     const userDataList = await GetAllUserDataByPattern();
+  //     //await BackupTotalGoldEarnLeaderboard(userDataList, resetWeekly);
+  //     //await BackupDailyGoldEarnLeaderboard(userDataList, resetDaily);
+  //     //await BackupWeeklyGoldEarnLeaderboard(userDataList, resetWeekly);
+
+  //     //await BackupTotalGoldLoseLeaderboard(userDataList, resetWeekly);
+  //     //await BackupDailyGoldLoseLeaderboard(userDataList, resetDaily);
+  //     //await BackupWeeklyGoldLoseLeaderboard(userDataList, resetWeekly);
+
+  //     //await BackupTotalGameWinLeaderboard(userDataList, resetWeekly);
+  //     //await BackupDailyGameWinLeaderboard(userDataList, resetDaily);
+  //     //await BackupWeeklyGameWinLeaderboard(userDataList, resetWeekly);
+
+  //     //await BackupTotalGameLoseLeaderboard(userDataList, resetWeekly);
+  //     //await BackupDailyGameLoseLeaderboard(userDataList, resetDaily);
+  //     //await BackupWeeklyGameLoseLeaderboard(userDataList, resetWeekly);
+
+  //     //await BackupTotalGoldChangeLeaderboard(userDataList, resetWeekly);
+  //     //await BackupDailyGoldChangeLeaderboard(userDataList, resetDaily);
+  //     //await BackupWeeklyGoldChangeLeaderboard(userDataList, resetWeekly);
+
+  //     //await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, resetWeekly);
+  //     //await BackupLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, resetDaily);
+  //     //await BackupLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, resetWeekly);
+  //   } catch (err) {
+  //     Logger.error(`Error cron job err: ${err}`);
+  //   }
+  // });
+
+  cron.schedule('0 0 * * *', async () => {
     let resetDaily = getTimeAtStartOfDay(app_constant.gameParameter.timeZone);
-    let resetWeekly = getTimeAtStartOfWeek(app_constant.gameParameter.timeZone);
-
-    console.log('⏰ Running task every hour at minute 55: ', new Date().toISOString());
+    Logger.info('🧹 Resetting daily leaderboard', new Date().toISOString());
     try {
-      const userDataList = await GetAllUserDataByPattern();
-      await BackupTotalGoldEarnLeaderboard(userDataList, resetWeekly);
-      await BackupDailyGoldEarnLeaderboard(userDataList, resetDaily);
-      await BackupWeeklyGoldEarnLeaderboard(userDataList, resetWeekly);
-
-      await BackupTotalGoldLoseLeaderboard(userDataList, resetWeekly);
-      await BackupDailyGoldLoseLeaderboard(userDataList, resetDaily);
-      await BackupWeeklyGoldLoseLeaderboard(userDataList, resetWeekly);
-
-      await BackupTotalGameWinLeaderboard(userDataList, resetWeekly);
-      await BackupDailyGameWinLeaderboard(userDataList, resetDaily);
-      await BackupWeeklyGameWinLeaderboard(userDataList, resetWeekly);
-
-      await BackupTotalGameLoseLeaderboard(userDataList, resetWeekly);
-      await BackupDailyGameLoseLeaderboard(userDataList, resetDaily);
-      await BackupWeeklyGameLoseLeaderboard(userDataList, resetWeekly);
-
-      await BackupTotalGoldChangeLeaderboard(userDataList, resetWeekly);
-      await BackupDailyGoldChangeLeaderboard(userDataList, resetDaily);
-      await BackupWeeklyGoldChangeLeaderboard(userDataList, resetWeekly);
+      await BackupLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, resetDaily);
+      await BackupLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_EARN, resetDaily);
+      await BackupLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_LOSE, resetDaily);
+      await BackupLeaderboard(LEADERBOARD_TYPE.DAILY_GAME_WIN, resetDaily);
+      await BackupLeaderboard(LEADERBOARD_TYPE.DAILY_GAME_LOSE, resetDaily);
+      await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, resetDaily);
+      await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_GOLD_EARN, resetDaily);
+      await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_GOLD_LOSE, resetDaily);
+      await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_GAME_WIN, resetDaily);
+      await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_GAME_LOSE, resetDaily);
+      await DeleteLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE);
+      await DeleteLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_EARN);
+      await DeleteLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_LOSE);
+      await DeleteLeaderboard(LEADERBOARD_TYPE.DAILY_GAME_WIN);
+      await DeleteLeaderboard(LEADERBOARD_TYPE.DAILY_GAME_LOSE);
+      Logger.info('✅ Daily leaderboard cleared');
     } catch (err) {
-      Logger.error(`Error cron job err: ${err}`);
+      Logger.error('❌ Failed to clear daily leaderboard:', err);
     }
   });
 
-  // Run every day at midnight
-  // cron.schedule('0 0 * * *', async () => {
-  //   console.log('🌙 Running daily midnight task', new Date().toISOString());
-  // });
+  cron.schedule('0 0 * * 1', async () => {
+    let resetWeekly = getTimeAtStartOfWeek(app_constant.gameParameter.timeZone);
+    Logger.info('🧹 Resetting weekly leaderboard', new Date().toISOString());
+    try {
+      await BackupLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, resetWeekly);
+      await BackupLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_EARN, resetWeekly);
+      await BackupLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE, resetWeekly);
+      await BackupLeaderboard(LEADERBOARD_TYPE.WEEKLY_GAME_WIN, resetWeekly);
+      await BackupLeaderboard(LEADERBOARD_TYPE.WEEKLY_GAME_LOSE, resetWeekly);
+      await DeleteLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE);
+      await DeleteLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_EARN);
+      await DeleteLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE);
+      await DeleteLeaderboard(LEADERBOARD_TYPE.WEEKLY_GAME_WIN);
+      await DeleteLeaderboard(LEADERBOARD_TYPE.WEEKLY_GAME_LOSE);
+      Logger.info('✅ Weekly leaderboard cleared');
+    } catch (err) {
+      Logger.error('❌ Failed to clear weekly leaderboard:', err);
+    }
+  });
 }

@@ -1,10 +1,11 @@
 import { Logger } from '../logger/winston-logger.config';
 import { SaveUserData } from './redis.utils';
-import { app_constant, CURRENCY_TYPE, ACHIEVEMENT_TYPE, TUTORIAL_ACTION, BASIC_QUEST_TYPE, DAILY_QUEST_TYPE, CONTRACT_EVENT } from '../config/constant';
+import { app_constant, CURRENCY_TYPE, ACHIEVEMENT_TYPE, TUTORIAL_ACTION, BASIC_QUEST_TYPE, DAILY_QUEST_TYPE, CONTRACT_EVENT , LEADERBOARD_TYPE } from '../config/constant';
 import { isSameDay, getTimeAtStartOfDay, getTimeAtStartOfWeek } from '../utils/helper';
 import TransactionHistory from '../models/TransactionHistory';
 import { createGameSignature, generateTxId } from '../services/signature.service';
 import { ethers } from 'ethers';
+import { SaveLeaderboard2 } from './redis.utils';
 
 interface CacheData {
   _id: string;
@@ -605,6 +606,18 @@ export class CacheUserData {
       this.user_stats.daily_gold_change += amount;
       this.user_stats.weekly_gold_change += amount;
 
+      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, this.userId, amount);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, this.userId, amount);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, this.userId, amount);
+
+      await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_EARN, this.userId, amount);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_EARN, this.userId, amount);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_EARN, this.userId, amount);
+
+      await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GAME_WIN, this.userId, 1);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GAME_WIN, this.userId, 1);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GAME_WIN, this.userId, 1);
+
       let dailyWins = await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_WIN, this.user_stats.daily_game_win);
       result.dailyQuest = [...result.dailyQuest, ...dailyWins];
       result.dailyGameWin = this.user_stats.daily_game_win;
@@ -619,6 +632,18 @@ export class CacheUserData {
       this.user_stats.total_gold_change -= amount;
       this.user_stats.daily_gold_change -= amount;
       this.user_stats.weekly_gold_change -= amount;
+
+      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, this.userId, -amount);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, this.userId, -amount);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, this.userId, -amount);
+
+      await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_LOSE, this.userId, -amount);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_LOSE, this.userId, -amount);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE, this.userId, -amount);
+
+      await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GAME_LOSE, this.userId, 1);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_LOSE, this.userId, 1);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GAME_LOSE, this.userId, 1);
     }
     this.user_stats.daily_game++;
     let dailyGames = await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_GAME, this.user_stats.daily_game);

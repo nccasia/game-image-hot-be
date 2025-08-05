@@ -1,10 +1,5 @@
 import { Logger } from "../logger/winston-logger.config";
 import TransactionHistory, {ITransactionHistory} from "../models/TransactionHistory";
-import { GetUserData } from '../redis/redis.utils';
-import { ErrorCode } from "../config/error_code";
-import { ErrorMessage } from "../config/error_message";
-import { CONTRACT_EVENT } from "../config/constant";
-import { ethers } from "ethers";
 
 export async function OnEventReceived(data: any): Promise<ITransactionHistory | null> {
   try {

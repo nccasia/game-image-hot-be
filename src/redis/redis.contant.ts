@@ -24,6 +24,10 @@ export function GetLeaderboardKey(rankname: string) {
   return `${REDIS_KEY.GAME}.${REDIS_KEY.LEADERBOARD}:${rankname}`;
 }
 
+export function GetLeaderboardKey2(rankname: string) {
+  return `${REDIS_KEY.GAME}.${REDIS_KEY.LEADERBOARD2}:${rankname}`;
+}
+
 export function GetGameDataConfigKey() {
   return `${REDIS_KEY.GAME}:gamedataconfig:lastupdate`;
 }

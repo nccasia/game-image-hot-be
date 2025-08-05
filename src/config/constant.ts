@@ -70,6 +70,7 @@ export enum REDIS_KEY {
   MEZON = "{mezon}",
   FRIEND_CODE = "{friendcode}",
   LEADERBOARD = "{leaderboard}",
+  LEADERBOARD2 = "{leaderboard2}",
   TRANSACTION = "{transaction}",
 }
 
