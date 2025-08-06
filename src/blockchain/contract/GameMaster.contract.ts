@@ -86,7 +86,7 @@ function attachListeners(contract: ethers.Contract) {
     OnEventReceived(data);
   });
 
-  contract.on(CONTRACT_EVENT.BET_GAME, (itx, gameId, players, playerBets, timestamp, event) => {
+  contract.on(CONTRACT_EVENT.BET_GAME, (itx, gameId, timestamp, event) => {
     const transactionHash = event.transactionHash;
     const eventName = event.event;
     const data: any = {
@@ -97,8 +97,6 @@ function attachListeners(contract: ethers.Contract) {
       //user_address: user_address.toLowerCase(),
       itx,
       game_id: gameId,
-      player_wallets: players.map((element: any) => element.toLowerCase()),
-      player_bets: playerBets.map((element: any) => parseFloat(ethers.utils.formatEther(element))),
       timestamp: parseInt(timestamp)
     };
     Logger.info(`Event ${eventName} data: ${JSON.stringify(data)}`);
