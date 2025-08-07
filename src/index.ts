@@ -129,9 +129,11 @@ connectToDatabase()
       if(process.env.USE_USER_SERVER == 'true') {
         UserServerSocket.instance.connect();
       }
+      else {
+        initGameMasterContract();
+      }
       
       startCronJobs();
-      initGameMasterContract();
       ScheduleEndGame();
     });
   })
