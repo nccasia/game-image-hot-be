@@ -23,7 +23,6 @@ interface CacheData {
   user_daily_quest?: any;
   user_basic_quest?: any;
   user_coupon?: any;
-  user_pending_itx?: any;
   updatedAt: string;
 }
 
@@ -43,7 +42,6 @@ export class CacheUserData {
   user_daily_quest?: any;
   user_basic_quest?: any;
   user_coupon?: any;
-  user_pending_itx?: any;
   updatedAt: string = '';
 
   constructor(cacheData: Partial<CacheData>) {
@@ -63,7 +61,6 @@ export class CacheUserData {
       this.user_daily_quest = cacheData.user_daily_quest;
       this.user_basic_quest = cacheData.user_basic_quest;
       this.user_coupon = cacheData.user_coupon;
-      this.user_pending_itx = cacheData.user_pending_itx;
       this.updatedAt = cacheData.updatedAt || '';
     }
   }
@@ -83,7 +80,6 @@ export class CacheUserData {
       user_basic_quest: this.user_basic_quest,
       user_daily_quest: this.user_daily_quest,
       //user_coupon: this.user_coupon,
-      user_pending_itx: this.user_pending_itx,
     };
   };
   
@@ -677,50 +673,5 @@ export class CacheUserData {
       Logger.info(`${this.GetUserDataLogPrefix()} UpdateDailyQuestData questType: ${questType} amount: ${amount} result: ${JSON.stringify(result)}`);
     }
     return result;
-  }
-
-  async SignBetGame(amount: number) {
-    let data = {
-      user_address: this.walletAddress,
-      user_id: this.userId,
-      amount,
-      chain_id: process.env.CHAIN_ID,
-      contract: process.env.MASTER_CONTRACT_ADDRESS,
-      signature: "",
-    }
-    let transactionHistory = await TransactionHistory.create({
-      event: CONTRACT_EVENT.BET_GAME,
-      ...data,
-    });
-    const signParams = {
-      user_address: data.user_address,
-      itx: generateTxId(transactionHistory.id.toString()),
-      user_id: data.user_id,
-      amount: ethers.utils.parseEther(data.amount.toString()).toString(),
-      contract: data.contract,
-    }
-    let signature = await createGameSignature(signParams);
-    await transactionHistory.updateOne({ $set: { 'itx': signParams.itx ,'signature': signature } });
-    let result = {
-      itx: signParams.itx,
-      userId: signParams.user_id,
-      amount: signParams.amount,
-      signature: signature,
-    }
-    Logger.info(`${this.GetUserDataLogPrefix()} SignBetGame result: ${JSON.stringify(result)}`);
-    return result;
-  }
-
-  async addPendingItx(itx: string) {
-    if(!this.user_pending_itx.includes(itx)) {
-      Logger.info(`${this.GetUserDataLogPrefix()} addPendingItx itx: ${itx}`);
-      this.user_pending_itx.push(itx);
-      await this.SaveData();
-    }
-  }
-
-  async handlePendingItx(itx: string) {
-    this.user_pending_itx = this.user_pending_itx.filter((element: any) => element != itx);
-    await this.SaveData();
   }
 }

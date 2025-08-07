@@ -35,7 +35,6 @@ export interface IUserData extends Document {
   user_daily_quest: IUserQuestData[];
   user_basic_quest: IUserQuestData[];
   user_coupon: IUserCouponData;
-  user_pending_itx: string[];
 
   getInfo(): any;
   saveReferralCode(friendCode: string): Promise<void>;
@@ -84,7 +83,6 @@ const UserDataSchema = new Schema<IUserData>(
         number_of_attempts: 5,
       }),
     },
-    user_pending_itx: { type: [String], default: [] },
   },
   { timestamps: true }
 );
@@ -109,7 +107,6 @@ UserDataSchema.methods.getInfo = function getInfo() {
     user_basic_quest: this.user_basic_quest,
     user_daily_quest: this.user_daily_quest,
     user_coupon: this.user_coupon,
-    user_pending_itx: this.user_pending_itx,
   };
 };
 
@@ -861,9 +858,6 @@ UserDataSchema.methods.SyncCacheData = async function SyncCacheData(cacheData: a
   }
   if(cacheData.user_coupon) {
     this.user_coupon = cacheData.user_coupon;
-  }
-  if(cacheData.user_pending_itx) {
-    this.user_pending_itx = cacheData.user_pending_itx;
   }
 }
 
