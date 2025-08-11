@@ -12,6 +12,7 @@ export async function OnEndGame(data: any): Promise<any> {
     if(!userStatsData) {
       userStatsData = await UserStats.create({ userId: userId });
     }
+    let amountChange = 0;
     if(isWin) {
       userStatsData.total_gold_earn += amount;
       userStatsData.daily_gold_earn += amount;
@@ -19,6 +20,10 @@ export async function OnEndGame(data: any): Promise<any> {
       userStatsData.total_game_win += 1;
       userStatsData.daily_game_win += 1;
       userStatsData.weekly_game_win += 1;
+      userStatsData.total_gold_change += amount;
+      userStatsData.daily_gold_change += amount;
+      userStatsData.weekly_gold_change += amount;
+      amountChange = amount;
     }
     else {
       userStatsData.total_gold_lose += amount;
@@ -27,11 +32,15 @@ export async function OnEndGame(data: any): Promise<any> {
       userStatsData.total_game_lose += 1;
       userStatsData.daily_game_lose += 1;
       userStatsData.weekly_game_lose += 1;
+      userStatsData.total_gold_change -= amount;
+      userStatsData.daily_gold_change -= amount;
+      userStatsData.weekly_gold_change -= amount;
+      amountChange = amount
     }
     await userStatsData.save();
     let userData = await GetUserData(userId);
     if(userData) {
-      let endGameData = await userData.OnEndGame(element);
+      let endGameData = await userData.OnEndGame(isWin, amountChange);
       let newData = {
         userId,
         ...endGameData,

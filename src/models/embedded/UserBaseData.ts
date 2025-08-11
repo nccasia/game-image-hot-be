@@ -3,10 +3,8 @@ import { Schema, Document } from 'mongoose';
 export interface IUserBaseData extends Document {
   user_gold: number;
   user_gem: number;
-  getInfo(): {
-    user_gold: number;
-    user_gem: number;
-  };
+
+  getInfo(): Omit<IUserBaseData, '_id' | '__v' | 'getInfo'>;
 }
 
 const UserBaseDataSchema = new Schema<IUserBaseData>(
@@ -28,7 +26,7 @@ UserBaseDataSchema.methods.getInfo = function () {
 };
 
 UserBaseDataSchema.set('toJSON', {
-  transform: (_doc, ret) => {
+  transform: (_doc, ret: any) => {
     delete ret._id;
     delete ret.__v;
     delete ret.id;

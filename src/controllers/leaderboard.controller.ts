@@ -5,9 +5,9 @@ import { ErrorCode } from '../config/error_code';
 import { ErrorMessage } from '../config/error_message';
 import { SendErrorMessage } from '../utils/helper';
 import { GetUserData } from '../redis/redis.utils';
-import { GetLeaderboard } from '../redis/redis.utils';
-import { CalcOffset, GetNextFullHour } from '../utils/helper';
-import { app_constant, LEADERBOARD_TYPE } from '../config/constant';
+import { GetLeaderboardTopRange, GetUserRank, GetLeaderboardSize } from '../redis/redis.utils';
+import { CalcOffset } from '../utils/helper';
+import { LEADERBOARD_TYPE } from '../config/constant';
 
 export const GetLeaderboardByName = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -32,23 +32,17 @@ export const GetLeaderboardByName = async (req: Request, res: Response, next: Ne
       return;
     }
 
-    let nextRefreshTime = GetNextFullHour(app_constant.gameParameter.timezone);
-    const leaderboards: any[] = await GetLeaderboard(name as string);
-    let myRank: any = null;
-    let leaderboardsWithRank: any[] = [];
-    if(leaderboards.length > 0) {
-      leaderboardsWithRank = leaderboards.slice(offset, offset + size);
-      myRank = leaderboards.find(element => element.userId == userData.userId);
-    }
+    let leaderboardsWithRank = await GetLeaderboardTopRange(name, offset, offset + size);
+    let myRank: any = await GetUserRank(name, userData.userId, userData.username);
+    let total = await GetLeaderboardSize(name);
     res.status(HttpStatusCode.OK).json({
       serverTime: new Date(),
       error_code: ErrorCode.NONE,
       data: {
         leaderboards: leaderboardsWithRank,
         myRank,
-        total: leaderboards.length,
+        total,
         currentPage: page,
-        nextRefreshTime,
       },
     });
   } catch (err) {

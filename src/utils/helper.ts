@@ -1,9 +1,10 @@
+import { Logger } from '../logger/winston-logger.config';
 import * as crypto from 'crypto';
 import * as fs from 'fs';
 import * as fsExtra from 'fs-extra';
 import path from 'path';
 
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 export function SendErrorMessage(error_code: number, message: string) {
@@ -131,26 +132,23 @@ export function formatDateYYYYMMDD(date: Date): string {
   return `${year}-${month}-${day}`;
 }
 
-export async function writeDataToCSV(headers: any, data: any, filename: string) {
+export async function writeDataToCSV(headers: { key: string, label: string }[], data: any, filename: string) {
   const backupFolder = "backup";
   if (!fsExtra.existsSync(backupFolder)) {
-    console.log("create folder");
+    Logger.info("create backup folder");
     fsExtra.mkdirSync(backupFolder, {recursive:true});
   }
-  const writeStream = fs.createWriteStream(`${backupFolder}/${filename}`);
-  writeStream.write(headers.join(',') + '\n');
-  data.forEach((data: any) => {
-    const row = [
-      data.username || '',  // username
-      data.mezonId || '',   // mezonId
-      data.rank || 0,       // rank
-      data.value || 0,
-    ];
-    writeStream.write(row.join(',') + '\n');  // Ghi dữ liệu vào file CSV, mỗi giá trị cách nhau bởi dấu phẩy
+  const filePath = `${backupFolder}/${filename}`;
+  const writeStream = fs.createWriteStream(filePath);
+
+  writeStream.write(headers.map(h => h.label).join(',') + '\n');
+  data.forEach((item: any) => {
+    const row = headers.map(h => item[h.key] ?? '');
+    writeStream.write(row.join(',') + '\n');
   });
 
   writeStream.end(async () => {
-    console.log(`Data saved in CSV file ${filename}`);
+    Logger.info(`Data saved in CSV file ${filename}`);
     const prefix = filename.split('_')[0];
     const maxFile = parseInt(process.env.MAX_LOG_FILES ?? '15');
     await cleanOldFiles(backupFolder, prefix, maxFile);
@@ -171,7 +169,7 @@ export async function cleanOldFiles(folder: string, prefix: string, maxFiles: nu
     const filesToDelete = files.slice(maxFiles);
     for (const file of filesToDelete) {
       fs.unlinkSync(file.fullPath);
-      console.log(`Deleted old file: ${file.name}`);
+      Logger.info(`Deleted old file: ${file.name}`);
     }
   }
 }

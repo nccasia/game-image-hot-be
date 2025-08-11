@@ -42,6 +42,11 @@ export const ErrorMessage = {
 
   INVALID_QUESTION: "Invalid question Id",
   INVALID_LEADERBOARD: "Invalid leaderboard name",
+  INVALID_USERNAME: "Invalid username. Only letters, numbers, underscores. No leading/trailing or double underscores. 3–100 characters.",
+  
+  INVALID_WALLET: "Invalid wallet",
+  INVALID_GAME_ID: "Invalid gameId",
+  INVALID_WINNER: "Winner did not participate",
 
   BAD_REQUEST: "BAD_REQUEST",
   UNAUTHORIZED: "UNAUTHORIZED",

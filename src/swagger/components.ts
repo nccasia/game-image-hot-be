@@ -469,6 +469,10 @@ const components = {
           quest_type: {
             type: "string",
           },
+          amount: {
+            type: "integer",
+            example: 1,
+          },
           claimable: {
             type: "boolean",
             example: false,
@@ -509,6 +513,12 @@ const components = {
             type: "string",
           },
           username: {
+            type: "string",
+          },
+          mezonId: {
+            type: "string",
+          },
+          walletAddress: {
             type: "string",
           },
           level: {

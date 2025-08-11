@@ -30,7 +30,11 @@ const swaggerDocument = {
   },
   servers: [
     {
-      url: "http://10.10.41.224:5014/",
+      url: "https://image-hot-api.ncc.studio",
+      description: "[NCC Domain]",
+    },
+    {
+      url: "http://10.10.41.233:5014",
       description: "[Dev Domain]",
     },
   ],

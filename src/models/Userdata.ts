@@ -16,6 +16,7 @@ export interface IUserData extends Document {
   userId: Types.ObjectId;
   username: string;
   mezonId: String;
+  walletAddress: String;
   level: number;
   lastLoginTime: Date;
   isFirstTimeLogin: boolean;
@@ -37,6 +38,7 @@ export interface IUserData extends Document {
 
   getInfo(): any;
   saveReferralCode(friendCode: string): Promise<void>;
+  updateUserName(username: string): Promise<void>;
   updateData(): Promise<void>;
   SyncCacheData(cacheData: any): Promise<void>;
 }
@@ -46,6 +48,7 @@ const UserDataSchema = new Schema<IUserData>(
     userId: { type: Schema.Types.ObjectId, required: true },
     username: { type: String, default: '' },
     mezonId: { type: String, default: '' },
+    walletAddress: { type: String, default: '' },
     level: { type: Number, default: 1 },
     lastLoginTime: { type: Date, default: Date.now },
     isFirstTimeLogin: { type: Boolean, default: true },
@@ -86,6 +89,8 @@ const UserDataSchema = new Schema<IUserData>(
 
 // ---- Indexes ----
 UserDataSchema.index({ userId: 1 });
+UserDataSchema.index({ mezonId: 1 });
+UserDataSchema.index({ walletAddress: 1 });
 UserDataSchema.index({ 'user_friend_info.friendCode': 1 });
 
 UserDataSchema.methods.getInfo = function getInfo() {
@@ -94,6 +99,7 @@ UserDataSchema.methods.getInfo = function getInfo() {
     userDataId: this._id,
     username: this.username,
     mezonId: this.mezonId,
+    walletAddress: this.walletAddress,
     level: this.level,
     user_friend_info: this.user_friend_info,
     user_achievement: this.user_achievement,
@@ -183,7 +189,7 @@ UserDataSchema.methods.saveReferralCode = async function (friendCode: string): P
  * Save new user name
  * @param {*} username
  */
-UserDataSchema.methods.updateUserName = async function updateUserName(username: string) {
+UserDataSchema.methods.updateUserName = async function updateUserName(username: string): Promise<void> {
   if (this.username != username) {
     this.username = username;
     await this.updateOne({ $set: { username: this.username } });
@@ -785,6 +791,7 @@ UserDataSchema.methods.resetDailyData = async function resetDailyData() {
     this.user_stats.daily_gold_lose = 0;
     this.user_stats.daily_game_win = 0;
     this.user_stats.daily_game_lose = 0;
+    this.user_stats.daily_gold_change = 0;
     this.user_stats.daily_game = 0;
     this.user_coupon.number_of_attempts = app_constant.gameParameter.limit_coupon_failed_per_day;
 
@@ -798,6 +805,7 @@ UserDataSchema.methods.resetDailyData = async function resetDailyData() {
     this.user_stats.weekly_gold_lose = 0;
     this.user_stats.weekly_game_win = 0;
     this.user_stats.weekly_game_lose = 0;
+    this.user_stats.weekly_gold_change = 0;
 
     isWeekly = true;
   }
@@ -809,12 +817,14 @@ UserDataSchema.methods.resetDailyData = async function resetDailyData() {
         userStatsData.daily_gold_lose = 0;
         userStatsData.daily_game_win = 0;
         userStatsData.daily_game_lose = 0;
+        userStatsData.daily_gold_change = 0;
       }
       if(isWeekly) {
         userStatsData.weekly_gold_earn = 0;
         userStatsData.weekly_gold_lose = 0;
         userStatsData.weekly_game_win = 0;
         userStatsData.weekly_game_lose = 0;
+        userStatsData.weekly_gold_change = 0;
       }
     }
   }
@@ -822,6 +832,9 @@ UserDataSchema.methods.resetDailyData = async function resetDailyData() {
 
 UserDataSchema.methods.SyncCacheData = async function SyncCacheData(cacheData: any) {
   this.level = cacheData.level;
+  if(cacheData.walletAddress) {
+    this.walletAddress = cacheData.walletAddress;
+  }
   if(cacheData.user_friend_info) {
     this.user_friend_info = cacheData.user_friend_info;
   }

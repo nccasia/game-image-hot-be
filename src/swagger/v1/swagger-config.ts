@@ -105,12 +105,6 @@ const swaggerGameConfig = {
                           $ref: "#/components/schemas/GameBasicQuestData",
                         },
                       },
-                      photos: {
-                        type: "array",
-                        items: {
-                          $ref: "#/components/schemas/GamePhotoData",
-                        },
-                      },
                     },
                   },
                 },

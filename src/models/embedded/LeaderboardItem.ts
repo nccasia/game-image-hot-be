@@ -7,13 +7,7 @@ export interface ILeaderboardItem extends Document {
   value: number;
   rank: number;
 
-  getInfo(): {
-    userDataId: string;
-    username: string;
-    level: number;
-    value: number;
-    rank: number;
-  };
+  getInfo(): Omit<ILeaderboardItem, '_id' | '__v' | 'getInfo'>;
 }
 
 export const LeaderboardItemSchema = new Schema<ILeaderboardItem>({
@@ -25,7 +19,7 @@ export const LeaderboardItemSchema = new Schema<ILeaderboardItem>({
 });
 
 LeaderboardItemSchema.set("toJSON", {
-  transform: (_doc, ret) => {
+  transform: (_doc, ret: any) => {
     delete ret._id;
     delete ret.__v;
     delete ret.id;

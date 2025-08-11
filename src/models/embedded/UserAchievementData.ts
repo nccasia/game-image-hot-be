@@ -9,12 +9,8 @@ export interface IUserAchievementData extends Document {
   claimed?: boolean;
   claimed_today: number;
   last_claimed_time?: Date;
-  getInfo(): {
-    user_achievement_id: number;
-    achievement_id: number;
-    amount: number;
-    claimed_count?: number;
-  };
+
+  getInfo(): Omit<IUserAchievementData, '_id' | '__v' | 'getInfo'>;
 }
 
 const UserAchievementDataSchema = new Schema<IUserAchievementData>(
@@ -44,7 +40,7 @@ UserAchievementDataSchema.methods.getInfo = function () {
 };
 
 UserAchievementDataSchema.set('toJSON', {
-  transform: (_doc, ret) => {
+  transform: (_doc, ret: any) => {
     delete ret._id;
     delete ret.__v;
     delete ret.id;

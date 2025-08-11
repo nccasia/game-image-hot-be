@@ -6,12 +6,7 @@ export interface ITutorial extends Document {
   require_tutorial_name: string;
   disable: number;
 
-  getInfo(): {
-    tutorial_id: number;
-    tutorial_name: string;
-    require_tutorial_name: string;
-    disable: number;
-  };
+  getInfo(): Omit<ITutorial, '_id' | '__v' | 'getInfo'>;
 }
 
 const TutorialSchema = new Schema<ITutorial>(
@@ -24,7 +19,7 @@ const TutorialSchema = new Schema<ITutorial>(
   {
     toJSON: {
       virtuals: true,
-      transform: (_doc, ret) => {
+      transform: (_doc, ret: any) => {
         delete ret._id;
         delete ret.__v;
         delete ret.id;

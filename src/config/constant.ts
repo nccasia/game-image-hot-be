@@ -9,7 +9,7 @@ import Tutorial from "../models/Tutorial";
 
 import { GetGameDataConfigUpdateTime } from "../redis/redis.utils";
 
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 interface AppConstant {
@@ -70,6 +70,7 @@ export enum REDIS_KEY {
   MEZON = "{mezon}",
   FRIEND_CODE = "{friendcode}",
   LEADERBOARD = "{leaderboard}",
+  LEADERBOARD2 = "{leaderboard2}",
   TRANSACTION = "{transaction}",
 }
 
@@ -125,14 +126,17 @@ export enum LEADERBOARD_TYPE {
   TOTAL_GOLD_LOSE = "total-gold-lose",
   TOTAL_GAME_WIN = "total-game-win",
   TOTAL_GAME_LOSE = "total-game-lose",
+  TOTAL_GOLD_CHANGE = "total-gold-change",
   DAILY_GOLD_EARN = "daily-gold-earn",
   DAILY_GOLD_LOSE = "daily-gold-lose",
   DAILY_GAME_WIN = "daily-game-win",
   DAILY_GAME_LOSE = "daily-game-lose",
+  DAILY_GOLD_CHANGE = "daily-gold-change",
   WEEKLY_GOLD_EARN = "weekly-gold-earn",
   WEEKLY_GOLD_LOSE = "weekly-gold-lose",
   WEEKLY_GAME_WIN = "weekly-game-win",
   WEEKLY_GAME_LOSE = "weekly-game-lose",
+  WEEKLY_GOLD_CHANGE = "weekly-gold-change",
 }
 
 export const COUNT_ACHIEVEMENT = 48;

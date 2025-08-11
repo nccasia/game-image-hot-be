@@ -7,13 +7,7 @@ export interface IUserTutorialData extends Document {
   action_type: string;
   recorded: number;
 
-  getInfo(): {
-    tutorial_id: number;
-    tutorial_name: string;
-    require_tutorial_name: string;
-    action_type: string;
-    recorded: number;
-  };
+  getInfo(): Omit<IUserTutorialData, '_id' | '__v' | 'getInfo'>;
 }
 
 const UserTutorialDataSchema = new Schema<IUserTutorialData>(
@@ -41,7 +35,7 @@ UserTutorialDataSchema.methods.getInfo = function () {
 };
 
 UserTutorialDataSchema.set('toJSON', {
-  transform: (_doc, ret) => {
+  transform: (_doc, ret: any) => {
     delete ret._id;
     delete ret.__v;
     delete ret.id;

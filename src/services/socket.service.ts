@@ -9,7 +9,7 @@ import { GetRandomQuestion, OnFinishQuestion } from './photos.service';
 import QuestionPhotoHistory from '../models/QuestionPhotoHistory';
 import { OnEndGame } from './userStats.service';
 
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 export class SocketService {
@@ -72,6 +72,11 @@ export class SocketService {
           }
         } catch (e) {
           Logger.error(`Error in 'getQuestion' event: ${e}`);
+          result = ResponseMessage(RESPONSE_STATUS.ERROR, ErrorMessage.INTERNAL_SERVER_ERROR, data);
+          if (typeof callback === 'function') {
+            callback(result);
+          }
+          return;
         }
       });
 
@@ -115,6 +120,11 @@ export class SocketService {
           }
         } catch (e) {
           Logger.error(`❌ Error in 'finishQuestion' event: ${e}`);
+          result = ResponseMessage(RESPONSE_STATUS.ERROR, ErrorMessage.INTERNAL_SERVER_ERROR, data);
+          if (typeof callback === 'function') {
+            callback(result);
+          }
+          return;
         }
       });
 
@@ -159,6 +169,11 @@ export class SocketService {
           }
         } catch (e) {
           Logger.error(`❌ Error in 'endGame' event: ${e}`);
+          result = ResponseMessage(RESPONSE_STATUS.ERROR, ErrorMessage.INTERNAL_SERVER_ERROR, data);
+          if (typeof callback === 'function') {
+            callback(result);
+          }
+          return;
         }
       });
 

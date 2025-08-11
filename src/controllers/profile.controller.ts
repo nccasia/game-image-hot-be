@@ -10,14 +10,15 @@ import jwt from "jsonwebtoken";
 import * as querystring from 'querystring';
 import User from '../models/User';
 import UserData from '../models/Userdata';
-import { GetUserDataIdByMezonId, SaveUserDataIdByMezonId, GetUserData, SaveUserData, GetUserDataIdByFriendCode, SetUserDataIdByFriendCode } from '../redis/redis.utils';
-import { isValidEmail, isValidReferralCode } from '../utils/validator.utils';
+import { GetUserDataIdByMezonId, SaveUserDataIdByMezonId, GetUserData, SaveUserData, 
+  GetUserDataIdByFriendCode, SetUserDataIdByFriendCode } from '../redis/redis.utils';
+import { isValidEmail, isValidReferralCode, isValidUsername } from '../utils/validator.utils';
 import { ACCOUNT_TYPE } from '../config/constant';
 import { GenerateHash, CreateShake256Hash } from '../utils/helper';
 import { LoginMezonInUserServer } from '../utils/UserServerHelper';
 import { UserServerSocket, IOReturn, Status } from '../services/userserverSocket.service';
 
-import dotenv from 'dotenv';
+import * as dotenv from 'dotenv';
 dotenv.config();
 
 export const registerEmail = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -449,7 +450,7 @@ export const getBalance = async (req: Request, res: Response, next: NextFunction
     const userData = await GetUserData(req.user_jwt.userId);
 
     if(!userData) {
-      Logger.error(`Error GetLeaderboardByName ${ErrorMessage.USER_NOT_FOUND} userId: ${req.user_jwt.userId} userData: ${userData}`);
+      Logger.error(`Error getBalance ${ErrorMessage.USER_NOT_FOUND} userId: ${req.user_jwt.userId} userData: ${userData}`);
       res.status(HttpStatusCode.OK).json(
         SendErrorMessage(ErrorCode.USER_NOT_FOUND, ErrorMessage.USER_NOT_FOUND)
       );
@@ -477,6 +478,209 @@ export const getBalance = async (req: Request, res: Response, next: NextFunction
     });
   } catch (err) {
     Logger.error(`Error getBalance ${ErrorMessage.INTERNAL_SERVER_ERROR} err: ${err}`);
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json(
+      SendErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR, ErrorMessage.INTERNAL_SERVER_ERROR)
+    );
+    return;
+  }
+};
+
+export const loginPrivy = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    // Get user input
+    const { privyUserName } = req.body;
+    Logger.info(`Request loginPrivy privyUserName: ${privyUserName}`);
+    // Validate if user exist in our database
+    let user = await User.findOne({ userPrivyId: req.user_privy });
+    if(!user) {
+      // Create user in our database
+      if(privyUserName) {
+        user = await User.create({
+          userPrivyId: req.user_privy,
+          username: privyUserName,
+          account_type: ACCOUNT_TYPE.PRIVY,
+        });
+      }
+      else {
+        user = await User.create({
+          userPrivyId: req.user_privy,
+          username: req.user_privy,
+          account_type: ACCOUNT_TYPE.PRIVY,
+        });
+      }
+    }
+
+    let userData = await UserData.findOne({ userId: user.id });
+    if (!userData) {
+      userData = await UserData.create({
+        userId: user.id,
+        username: user.username,
+      });
+
+      //generate referral code
+      if (userData.user_friend_info.friendCode == "") {
+        let validReferralCode = false;
+        let length = 2;
+        let referralCode = "";
+        do {
+          length++;
+          referralCode = CreateShake256Hash(userData.id, length);
+          validReferralCode = await isValidReferralCode(referralCode);
+        } while (!validReferralCode);
+        await userData.saveReferralCode(referralCode);
+      }
+    }
+    else {
+      let redisUserData = await GetUserData(userData.userId.toString());
+      if(redisUserData && user.walletAddress != "" && redisUserData.walletAddress != user.walletAddress) {
+        redisUserData.updateWallet(user.walletAddress);
+      }
+    }
+    // Create token
+    const accessToken = jwt.sign(
+      { userId: user.id.toString(), userDataId: userData.id.toString() },
+      process.env.SV_JWT_TOKEN_KEY || "",
+      {
+        expiresIn: "24h",
+      }
+    );
+    // save user token
+    await user.setAccessToken(accessToken);
+
+    res.status(HttpStatusCode.OK).json({
+      serverTime: new Date(),
+      error_code: ErrorCode.NONE,
+      data: {
+        //...user.getInfo(),
+        accessToken: user.accessToken,
+      },
+    });
+    return;
+  } catch (err) {
+    Logger.error(`Error loginPrivy ${ErrorMessage.INTERNAL_SERVER_ERROR} err: ${err}`);
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json(
+      SendErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR, ErrorMessage.INTERNAL_SERVER_ERROR)
+    );
+    return;
+  }
+};
+
+export const linkWallet = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    // Get user input
+    const { walletAddress } = req.body;
+    Logger.info(`Request linkWallet user: ${JSON.stringify(req.user_jwt)} walletAddress: ${walletAddress}`);
+    // Validate user input
+    if (!walletAddress || walletAddress == "") {
+      Logger.warn(`Warning Business linkWallet ${ErrorMessage.MISSING_PARAMETER} walletAddress: ${walletAddress}`);
+      res.status(HttpStatusCode.OK).json(
+        SendErrorMessage(ErrorCode.MISSING_PARAMETER, ErrorMessage.MISSING_PARAMETER)
+      );
+      return;
+    }
+
+    let userData = await GetUserData(req.user_jwt.userId);
+    if(!userData) {
+      Logger.error(`Error linkWallet ${ErrorMessage.USER_NOT_FOUND} userId: ${req.user_jwt.userId} userDataId: ${req.user_jwt.userDataId}`);
+      res.status(HttpStatusCode.OK).json(
+        SendErrorMessage(ErrorCode.USER_NOT_FOUND, ErrorMessage.USER_NOT_FOUND)
+      );
+      return;
+    }
+
+    let newWallet = walletAddress.toLowerCase();
+    if(userData.walletAddress != newWallet) {
+      userData.updateWallet(newWallet);
+
+      let walletUserList = await User.find({walletAddress: newWallet});
+      for(var walletUser of walletUserList) {
+        await walletUser.updateOne({ $set: { 'walletAddress': "" } });
+
+        let redisUserData = await GetUserData(walletUser.id.toString());
+        if(redisUserData) {
+          redisUserData.updateWallet("");
+        }
+      }
+      const user = await User.findById(userData.userId);
+      if(user) {
+        await user.updateOne({ $set: { 'walletAddress': newWallet } });
+      }
+    }
+    res.status(HttpStatusCode.OK).json({
+      serverTime: new Date(),
+      error_code: ErrorCode.NONE,
+      data: {
+        walletAddress: userData.walletAddress,
+      },
+    });
+    return;
+  } catch (err) {
+    Logger.error(`Error linkWallet ${ErrorMessage.INTERNAL_SERVER_ERROR} err: ${err}`);
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json(
+      SendErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR, ErrorMessage.INTERNAL_SERVER_ERROR)
+    );
+    return;
+  }
+};
+
+export const changeUserName = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    // Get user input
+    const { newUsername } = req.body;
+    Logger.info(`Request ChangeUserName newUsername: ${newUsername}`);
+    // Validate user input
+    if (!newUsername) {
+      Logger.warn(`Warning Business ChangeUserName ${ErrorMessage.MISSING_PARAMETER} newUsername: ${newUsername}`);
+      res.status(HttpStatusCode.OK).json(
+        SendErrorMessage(ErrorCode.MISSING_PARAMETER, ErrorMessage.MISSING_PARAMETER)
+      );
+      return;
+    }
+
+    if (!isValidUsername(newUsername)) {
+      Logger.warn(`Warning Business ChangeUserName ${ErrorMessage.INVALID_USERNAME} newUsername: ${newUsername} isValidUsername: ${isValidUsername(newUsername)}`);
+      res.status(HttpStatusCode.OK).json(
+        SendErrorMessage(ErrorCode.INVALID_USERNAME, ErrorMessage.INVALID_USERNAME)
+      );
+      return;
+    }
+    // Validate if user exist in our database
+    const userData = await GetUserData(req.user_jwt.userId);
+
+    if (userData) {
+      let oldUser = await UserData.findOne({ username: newUsername });
+      if (oldUser && oldUser.userId.toString() != userData.userId.toString()) {
+        Logger.warn(`Warning Business ChangeUserName ${ErrorMessage.USERNAME_ALREADY_EXIST} newUsername: ${newUsername}`);
+        res.status(HttpStatusCode.OK).json(
+          SendErrorMessage(ErrorCode.USERNAME_ALREADY_EXIST, ErrorMessage.USERNAME_ALREADY_EXIST)
+        );
+        return;
+      }
+
+      let dbUserData = await UserData.findById(req.user_jwt.userDataId);
+      let dbUser = await User.findById(req.user_jwt.userId);
+      if(dbUserData && dbUser) {
+        await dbUserData.updateUserName(newUsername);
+        await dbUser.setUsername(newUsername);
+        await userData.updateUserName(newUsername);
+      }
+      res.status(HttpStatusCode.OK).json({
+        serverTime: new Date(),
+        error_code: ErrorCode.NONE,
+        data: {
+          username: userData.username,
+        }
+      });
+      return;
+    }
+
+    Logger.error(`Error ChangeUserName ${ErrorMessage.USER_NOT_FOUND} userDataId: ${req.user_jwt.userDataId} userData: ${userData}`);
+    res.status(HttpStatusCode.OK).json(
+      SendErrorMessage(ErrorCode.USER_NOT_FOUND, ErrorMessage.USER_NOT_FOUND)
+    );
+    return;
+  } catch (err) {
+    Logger.error(`Error ChangeUserName ${ErrorMessage.INTERNAL_SERVER_ERROR} err: ${err}`);
     res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json(
       SendErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR, ErrorMessage.INTERNAL_SERVER_ERROR)
     );

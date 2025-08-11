@@ -304,6 +304,93 @@ const swaggerUser = {
     },
   },
 
+  "/api/v1/users/login-privy": {
+    post: {
+      tags: ["User"],
+      summary: "login privy",
+      requestBody: {
+        description: "privyUserName",
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              properties: {
+                privyUserName: {
+                  type: "string",
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Successful response",
+          content: {
+            "application/json": {
+              schema: {
+                properties: {
+                  serverTime: {
+                    $ref: "#/components/schemas/dateTimeStr",
+                  },
+                  error_code: {
+                    type: "integer",
+                  },
+                  data: {
+                    allOf: [
+                      {
+                        type: "object",
+                        properties: {
+                          accessToken: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+        400: {
+          description: "Bad Request",
+          content: {
+            "application/json": {
+              examples: {
+                error1: {
+                  summary: "MISSING_PARAMETER",
+                  value: {
+                    serverTime: "2024-04-15T07:32:01.190Z",
+                    error_code: 1,
+                    error_message: "MISSING_PARAMETER",
+                  },
+                },
+              },
+            },
+          },
+        },
+        500: {
+          description: "Internal server error",
+          content: {
+            "application/json": {
+              examples: {
+                error1: {
+                  summary: "INTERNAL_SERVER_ERROR",
+                  value: {
+                    serverTime: "2024-04-15T07:32:01.190Z",
+                    error_code: 500,
+                    error_message: "INTERNAL_SERVER_ERROR",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
   "/api/v1/users/change-password": {
     post: {
       tags: ["User"],
@@ -543,6 +630,220 @@ const swaggerUser = {
             "application/json": {
               examples: {
                 error1: {
+                  summary: "USER_NOT_FOUND",
+                  value: {
+                    serverTime: "2024-04-15T07:32:01.190Z",
+                    error_code: 7,
+                    error_message: "USER_NOT_FOUND",
+                  },
+                },
+              },
+            },
+          },
+        },
+        500: {
+          description: "Internal server error",
+          content: {
+            "application/json": {
+              examples: {
+                error1: {
+                  summary: "INTERNAL_SERVER_ERROR",
+                  value: {
+                    serverTime: "2024-04-15T07:32:01.190Z",
+                    error_code: 500,
+                    error_message: "INTERNAL_SERVER_ERROR",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  "/api/v1/users/link-wallet": {
+    post: {
+      tags: ["User"],
+      summary: "link wallet",
+      parameters: [
+        {
+          name: "x-access-token",
+          in: "header",
+          schema: {
+            $ref: "#/components/schemas/access_token",
+          },
+          required: true, // Mandatory param
+        },
+      ],
+      requestBody: {
+        description: "walletAddress",
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              properties: {
+                walletAddress: {
+                  type: "string",
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Successful response",
+          content: {
+            "application/json": {
+              schema: {
+                properties: {
+                  serverTime: {
+                    $ref: "#/components/schemas/dateTimeStr",
+                  },
+                  error_code: {
+                    type: "integer",
+                  },
+                  data: {
+                    allOf: [
+                      {
+                        type: "object",
+                        properties: {
+                          walletAddress: {
+                            type: "string",
+                          },
+                        },
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+        400: {
+          description: "Bad Request",
+          content: {
+            "application/json": {
+              examples: {
+                error1: {
+                  summary: "MISSING_PARAMETER",
+                  value: {
+                    serverTime: "2024-04-15T07:32:01.190Z",
+                    error_code: 1,
+                    error_message: "MISSING_PARAMETER",
+                  },
+                },
+                error2: {
+                  summary: "USER_NOT_FOUND",
+                  value: {
+                    serverTime: "2024-04-15T07:32:01.190Z",
+                    error_code: 7,
+                    error_message: "USER_NOT_FOUND",
+                  },
+                },
+              },
+            },
+          },
+        },
+        500: {
+          description: "Internal server error",
+          content: {
+            "application/json": {
+              examples: {
+                error1: {
+                  summary: "INTERNAL_SERVER_ERROR",
+                  value: {
+                    serverTime: "2024-04-15T07:32:01.190Z",
+                    error_code: 500,
+                    error_message: "INTERNAL_SERVER_ERROR",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+
+  "/api/v1/users/change-username": {
+    post: {
+      tags: ["User"],
+      summary: "Change username",
+      parameters: [
+        {
+          name: "x-access-token",
+          in: "header",
+          schema: {
+            $ref: "#/components/schemas/access_token",
+          },
+          required: true, // Mandatory param
+        },
+      ],
+      requestBody: {
+        description: "newUsername",
+        required: true,
+        content: {
+          "application/json": {
+            schema: {
+              properties: {
+                newUsername: {
+                  type: "string",
+                },
+              },
+            },
+          },
+        },
+      },
+      responses: {
+        200: {
+          description: "Successful response",
+          content: {
+            "application/json": {
+              schema: {
+                properties: {
+                  serverTime: {
+                    $ref: "#/components/schemas/dateTimeStr",
+                  },
+                  error_code: {
+                    type: "integer",
+                  },
+                  data: {
+                    type: "object",
+                    properties: {
+                      username: {
+                        type: "string",
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        400: {
+          description: "Bad Request",
+          content: {
+            "application/json": {
+              examples: {
+                error1: {
+                  summary: "MISSING_PARAMETER",
+                  value: {
+                    serverTime: "2024-04-15T07:32:01.190Z",
+                    error_code: 1,
+                    error_message: "MISSING_PARAMETER",
+                  },
+                },
+                error2: {
+                  summary: "INVALID_USERNAME",
+                  value: {
+                    serverTime: "2024-04-15T07:32:01.190Z",
+                    error_code: 37,
+                    error_message: "INVALID_USERNAME",
+                  },
+                },
+                error3: {
                   summary: "USER_NOT_FOUND",
                   value: {
                     serverTime: "2024-04-15T07:32:01.190Z",

@@ -13,19 +13,7 @@ export interface IQuestionPhotoHistory extends Document {
   match_result_after: string;
   changed_at: Date;
 
-  getInfo(): {
-    left_photo_id: string;
-    left_score_before: number;
-    left_score_after: number;
-    left_vote: number;
-    right_photo_id: string;
-    right_score_before: number;
-    right_score_after: number;
-    right_vote: number;
-    match_result_before: string;
-    match_result_after: string;
-    changed_at: Date;
-  };
+  getInfo(): Omit<IQuestionPhotoHistory, '_id' | '__v' | 'getInfo'>;
 }
 
 const QuestionPhotoHistorySchema: Schema<IQuestionPhotoHistory> = new Schema(

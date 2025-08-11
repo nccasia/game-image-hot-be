@@ -5,10 +5,7 @@ export interface ILeaderboard extends Document {
   name: string;
   leaderboards: ILeaderboardItem[];
 
-  getInfo(): {
-    name: string;
-    leaderboards: ILeaderboardItem[];
-  };
+  getInfo(): Omit<ILeaderboard, '_id' | '__v' | 'getInfo'>;
 }
 
 const LeaderboardSchema = new Schema<ILeaderboard>(
@@ -23,7 +20,7 @@ LeaderboardSchema.index({ name: 1 });
 
 LeaderboardSchema.set('toJSON', {
   virtuals: true,
-  transform: (_doc, ret) => {
+  transform: (_doc, ret: any) => {
     delete ret._id;
     delete ret.__v;
     delete ret.id;

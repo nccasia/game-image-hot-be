@@ -7,13 +7,7 @@ export interface IUserQuestData extends Document {
   claimable: boolean;
   claimed: boolean;
 
-  getInfo(): {
-    quest_id: number;
-    quest_type: string;
-    amount: number;
-    claimable: boolean;
-    claimed: boolean;
-  };
+  getInfo(): Omit<IUserQuestData, '_id' | '__v' | 'getInfo'>;
 }
 
 const UserQuestDataSchema = new Schema<IUserQuestData>(
@@ -41,7 +35,7 @@ UserQuestDataSchema.methods.getInfo = function () {
 };
 
 UserQuestDataSchema.set('toJSON', {
-  transform: (_doc, ret) => {
+  transform: (_doc, ret: any) => {
     delete ret._id;
     delete ret.__v;
     delete ret.id;
