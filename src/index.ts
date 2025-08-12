@@ -17,6 +17,8 @@ import swaggerDocument from './swagger/swagger';
 import { SocketService } from './services/socket.service';
 import { UserServerSocket } from './services/userserverSocket.service';
 import { startCronJobs } from './cron/BackupLeaderboard';
+import { initGameMasterContract } from './blockchain/contract/GameMaster.contract';
+import { ScheduleEndGame } from './cron/ScheduleEndGame';
 
 import apiRouter from './routes';
 
@@ -40,6 +42,7 @@ const loggerRoutes = [
   "quest",
   "leaderboard",
   "coupon",
+  "transaction",
 ];
 
 // Limit
@@ -125,6 +128,10 @@ connectToDatabase()
       SocketService.instance.start();
       if(process.env.USE_USER_SERVER == 'true') {
         UserServerSocket.instance.connect();
+      }
+      else {
+        initGameMasterContract();
+        ScheduleEndGame();
       }
       
       startCronJobs();

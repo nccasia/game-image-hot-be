@@ -3,7 +3,7 @@ import express, { Router } from 'express';
 // Middleware
 import auth from '../../middleware/auth';
 import adminAuth from '../../middleware/adminAuth';
-//import privyAuth from '../../middleware/privyAuth';
+import privyAuth from '../../middleware/privyAuth';
 import asyncMiddleware from '../../middleware/async_middleware';
 
 // Controller
@@ -21,7 +21,7 @@ const router: Router = express.Router();
 router.post('/users/register', asyncMiddleware(registerEmail));
 router.post('/users/login', asyncMiddleware(loginEmail));
 router.post('/users/login-mezon', asyncMiddleware(loginMezon));
-//router.post("/users/login-privy", privyAuth, asyncMiddleware(loginPrivy));
+router.post("/users/login-privy", privyAuth, asyncMiddleware(loginPrivy));
 
 router.post('/users/change-password', auth, asyncMiddleware(changePassword));
 

@@ -7,7 +7,11 @@ import { SendErrorMessage, ResponseMessage } from '../utils/helper';
 import { RESPONSE_STATUS, RESPONSE_MESSAGE } from '../config/constant';
 import { GetRandomQuestion, OnFinishQuestion } from './photos.service';
 import QuestionPhotoHistory from '../models/QuestionPhotoHistory';
-import { OnEndGame } from './userStats.service';
+import { getAvailableWalletBalanceInContract, OnBetGame, OnEndGame, isTxUsed } from '../blockchain/service/GameMaster.service';
+import TransactionHistory from '../models/TransactionHistory';
+import { CONTRACT_EVENT } from '../config/constant';
+import { GetUserData } from '../redis/redis.utils';
+import { UserServerSocket, IOReturn, Status } from '../services/userserverSocket.service';
 
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -128,29 +132,143 @@ export class SocketService {
         }
       });
 
+      socket.on('betGame', async (msg, callback) => {
+        let result: any = {};
+        let data: any = {};
+        try {
+          Logger.info(`📨 Event 'betGame' socketId: ${socket.id} received: ${JSON.stringify(msg)}`);
+          const { gameId, gameData, hash } = msg;
+          if (!gameId || !gameData || !Array.isArray(gameData) || gameData.length === 0) {
+            result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.MISSING_PARAMETER, data);
+            Logger.info(`❌ Warning Event 'betGame' socketId: ${socket.id} ${ErrorMessage.MISSING_PARAMETER} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+            if (typeof callback === 'function') {
+              callback(result);
+            }
+            return;
+          }
+          if(hash != process.env.USER_SERVER_VERIFY_HASH) {
+            result = ResponseMessage(RESPONSE_STATUS.WARNING, RESPONSE_MESSAGE.WARNING_VALIDATE_HASH_FAILED, data);
+            Logger.info(`❌ Warning Event 'betGame' socketId: ${socket.id} ${RESPONSE_MESSAGE.WARNING_VALIDATE_HASH_FAILED} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+            if (typeof callback === 'function') {
+              callback(result);
+            }
+            return;
+          }
+
+          if(process.env.USE_USER_SERVER != 'true') {
+            let transactionBetGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.BET_GAME });
+            if(transactionBetGame) {
+              let isUsed = await isTxUsed(transactionBetGame.itx);
+              if(isUsed) {
+                result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.TRANSACTION_ALREADY_ENDED, data);
+                Logger.info(`❌ Warning Event 'betGame' socketId: ${socket.id} ${ErrorMessage.TRANSACTION_ALREADY_ENDED} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+                if (typeof callback === 'function') {
+                  callback(result);
+                }
+                return;
+              }
+            }
+          }
+          
+          let players = [];
+          let playerWallets = [];
+          let playerBets = [];
+          for(let info of gameData) {
+            if(!info.userId || info.amount == null || isNaN(info.amount) || info.amount <= 0) {
+              result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.MISSING_PARAMETER, data);
+              Logger.info(`❌ Warning Event 'betGame' socketId: ${socket.id} ${ErrorMessage.MISSING_PARAMETER} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+              if (typeof callback === 'function') {
+                callback(result);
+              }
+              return;
+            }
+            let userData = await GetUserData(info.userId);
+            if(!userData) {
+              result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.USER_NOT_FOUND, data);
+              Logger.info(`❌ Warning Event 'betGame' socketId: ${socket.id} ${ErrorMessage.USER_NOT_FOUND} userId: ${info.userId} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+              if (typeof callback === 'function') {
+                callback(result);
+              }
+              return;
+            }
+
+            if(process.env.USE_USER_SERVER == 'true') {
+              if(userData.mezonId == "" || userData.mezonId == null) {
+                result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.INVALID_MEZON_ID, data);
+                Logger.info(`❌ Warning Event 'betGame' socketId: ${socket.id} ${ErrorMessage.INVALID_MEZON_ID} ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+                if (typeof callback === 'function') {
+                  callback(result);
+                }
+                return;
+              }
+
+              const balanceResponse = await UserServerSocket.instance.getBalanceAsync(userData.mezonId as string);
+              let availableBalance = balanceResponse.data.balance - balanceResponse.data.pendingBalance;
+              if(availableBalance < info.amount) {
+                result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.INSUFFICIENT_RESOURCE, data);
+                Logger.info(`❌ Warning Event 'betGame' socketId: ${socket.id} ${ErrorMessage.INSUFFICIENT_RESOURCE} ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId} availableBalance: ${availableBalance} amount: ${info.amount} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+                if (typeof callback === 'function') {
+                  callback(result);
+                }
+                return;
+              }
+              playerWallets.push(userData.mezonId);
+            }
+            else {
+              if(userData.walletAddress == "" || userData.walletAddress == null) {
+                result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.INVALID_WALLET, data);
+                Logger.info(`❌ Warning Event 'betGame' socketId: ${socket.id} ${ErrorMessage.INVALID_WALLET} ${userData.GetUserDataLogPrefix()} walletAddress: ${userData.walletAddress} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+                if (typeof callback === 'function') {
+                  callback(result);
+                }
+                return;
+              }
+
+              let availableBalance = await getAvailableWalletBalanceInContract(userData.walletAddress);
+              if(availableBalance < info.amount) {
+                result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.INSUFFICIENT_RESOURCE, data);
+                Logger.info(`❌ Warning Event 'betGame' socketId: ${socket.id} ${ErrorMessage.INSUFFICIENT_RESOURCE} ${userData.GetUserDataLogPrefix()} walletAddress: ${userData.walletAddress} availableBalance: ${availableBalance} amount: ${info.amount} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+                if (typeof callback === 'function') {
+                  callback(result);
+                }
+                return;
+              }
+              playerWallets.push(userData.walletAddress);
+            }
+            
+            players.push(info.userId);
+            playerBets.push(info.amount);
+          }
+
+          data = await OnBetGame(gameId, players, playerWallets, playerBets);
+          result = ResponseMessage(RESPONSE_STATUS.SUCCESS, RESPONSE_MESSAGE.SUCCESS, data);
+          Logger.info(`✅ Event 'betGame' socketId: ${socket.id} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+          if (typeof callback === 'function') {
+            callback(result);
+          }
+        } catch (e) {
+          Logger.error(`❌ Error in 'betGame' event: ${e}`);
+          result = ResponseMessage(RESPONSE_STATUS.ERROR, ErrorMessage.INTERNAL_SERVER_ERROR, data);
+          if (typeof callback === 'function') {
+            callback(result);
+          }
+          return;
+        }
+      });
+
       socket.on('endGame', async (msg, callback) => {
         let result: any = {};
         let data: any = {};
         try {
           Logger.info(`📨 Event 'endGame' socketId: ${socket.id} received: ${JSON.stringify(msg)}`);
-          const { gameData, hash } = msg;
-          if (!gameData || !hash || !Array.isArray(gameData) || gameData.length === 0) {
+          const { gameId, winner, hash } = msg;
+          if (!gameId || !winner) {
             result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.MISSING_PARAMETER, data);
             Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.MISSING_PARAMETER} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
             if (typeof callback === 'function') {
               callback(result);
             }
             return;
-          }
-          for(let info of gameData) {
-            if(!info.userId || info.amount == null || info.isWin == null) {
-              result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.MISSING_PARAMETER, data);
-              Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.MISSING_PARAMETER} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
-              if (typeof callback === 'function') {
-                callback(result);
-              }
-              return;
-            }
           }
           if(hash != process.env.USER_SERVER_VERIFY_HASH) {
             result = ResponseMessage(RESPONSE_STATUS.WARNING, RESPONSE_MESSAGE.WARNING_VALIDATE_HASH_FAILED, data);
@@ -161,7 +279,83 @@ export class SocketService {
             return;
           }
 
-          data = await OnEndGame(gameData);
+          let userData = await GetUserData(winner);
+          if(!userData) {
+            result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.USER_NOT_FOUND, data);
+            Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.USER_NOT_FOUND} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+            if (typeof callback === 'function') {
+              callback(result);
+            }
+            return;
+          }
+
+          let transactionBetGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.BET_GAME });
+          if(!transactionBetGame) {
+            result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.INVALID_GAME_ID, data);
+            Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.INVALID_GAME_ID} ${userData.GetUserDataLogPrefix()} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+            if (typeof callback === 'function') {
+              callback(result);
+            }
+            return;
+          }
+
+          let winnerAddress = "";
+          if(process.env.USE_USER_SERVER == 'true') {
+            if(userData.mezonId == "" || userData.mezonId == null) {
+              result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.INVALID_MEZON_ID, data);
+              Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.INVALID_MEZON_ID} ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+              if (typeof callback === 'function') {
+                callback(result);
+              }
+              return;
+            }
+            winnerAddress = userData.mezonId;
+          }
+          else {
+            if(userData.walletAddress == "" || userData.walletAddress == null) {
+              result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.INVALID_WALLET, data);
+              Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.INVALID_WALLET} ${userData.GetUserDataLogPrefix()} walletAddress: ${userData.walletAddress} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+              if (typeof callback === 'function') {
+                callback(result);
+              }
+              return;
+            }
+            winnerAddress = userData.walletAddress;
+
+            let isBetGameTxUsed = await isTxUsed(transactionBetGame.itx);
+            if(!isBetGameTxUsed) {
+              result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.TRANSACTION_NOT_FOUND, data);
+              Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.TRANSACTION_NOT_FOUND} ${userData.GetUserDataLogPrefix()} betGame itx: ${transactionBetGame.itx} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+              if (typeof callback === 'function') {
+                callback(result);
+              }
+              return;
+            }
+
+            let transactionEndGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.GAME_ENDED });
+            if(transactionEndGame) {
+              let isUsed = await isTxUsed(transactionEndGame.itx);
+              if(isUsed) {
+                result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.TRANSACTION_ALREADY_ENDED, data);
+                Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.TRANSACTION_ALREADY_ENDED} ${userData.GetUserDataLogPrefix()} endGame itx: ${transactionEndGame.itx} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+                if (typeof callback === 'function') {
+                  callback(result);
+                }
+                return;
+              }
+            }
+          }
+
+          if(!transactionBetGame.player_wallets.includes(winnerAddress)) {
+            result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.INVALID_WINNER, data);
+            Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.INVALID_WINNER} ${userData.GetUserDataLogPrefix()} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+            if (typeof callback === 'function') {
+              callback(result);
+            }
+            return;
+          }
+
+          data = await OnEndGame(transactionBetGame, winner, winnerAddress);
           result = ResponseMessage(RESPONSE_STATUS.SUCCESS, RESPONSE_MESSAGE.SUCCESS, data);
           Logger.info(`✅ Event 'endGame' socketId: ${socket.id} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
           if (typeof callback === 'function') {

@@ -17,6 +17,7 @@ import { ACCOUNT_TYPE } from '../config/constant';
 import { GenerateHash, CreateShake256Hash } from '../utils/helper';
 import { LoginMezonInUserServer } from '../utils/UserServerHelper';
 import { UserServerSocket, IOReturn, Status } from '../services/userserverSocket.service';
+import { getWalletBalance, getWalletBalanceInContract, getAvailableWalletBalanceInContract } from '../blockchain/service/GameMaster.service';
 
 import * as dotenv from 'dotenv';
 dotenv.config();
@@ -457,25 +458,52 @@ export const getBalance = async (req: Request, res: Response, next: NextFunction
       return;
     }
 
-    if(userData.mezonId == null || userData.mezonId == "") {
-      Logger.error(`Warning getBalance ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId}`);
+    if(process.env.USE_USER_SERVER == 'true') {
+      if(userData.mezonId == null || userData.mezonId == "") {
+        Logger.error(`Warning getBalance ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId}`);
+        res.status(HttpStatusCode.OK).json({
+            status: 0,
+            message: "OK",
+            data: {
+              user: userData.mezonId,
+              balance: 0,
+              pendingBalance: 0
+            }
+        });
+        return;
+      }
+      UserServerSocket.instance.getBalance(userData.mezonId as string, (response: IOReturn) => {
+        res.status(HttpStatusCode.OK).json({
+            ...response,
+        });
+        return;
+      });
+    }
+    else {
+      if(userData.walletAddress == "" || userData.walletAddress == null) {
+        Logger.error(`Error getBalance ${ErrorMessage.INVALID_WALLET} ${userData.GetUserDataLogPrefix()} walletAddress: ${userData.walletAddress}`);
+        res.status(HttpStatusCode.OK).json(
+          SendErrorMessage(ErrorCode.INVALID_WALLET, ErrorMessage.INVALID_WALLET)
+        );
+        return;
+      }
+      let balance = await getWalletBalance(userData.walletAddress);
+      let contractBalance = await getWalletBalanceInContract(userData.walletAddress);
+      let availableContractBalance = await getAvailableWalletBalanceInContract(userData.walletAddress);
+      let pendingBalance = contractBalance - availableContractBalance;
       res.status(HttpStatusCode.OK).json({
-          status: 0,
-          message: "OK",
-          data: {
-            user: userData.mezonId,
-            balance: 0,
-            pendingBalance: 0
-          }
+        status: 0,
+        message: "OK",
+        data: {
+          user: userData.userId,
+          balance,
+          contractBalance,
+          availableContractBalance,
+          pendingBalance,
+        }
       });
       return;
     }
-    UserServerSocket.instance.getBalance(userData.mezonId as string, (response: IOReturn) => {
-      res.status(HttpStatusCode.OK).json({
-          ...response,
-      });
-      return;
-    });
   } catch (err) {
     Logger.error(`Error getBalance ${ErrorMessage.INTERNAL_SERVER_ERROR} err: ${err}`);
     res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json(

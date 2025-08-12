@@ -6,7 +6,7 @@ dotenv.config();
 // === Optional: Define server/client event types ===
 interface ServerToClientEvents {
   // Example: server sends this event to client
-  balance: (data: { userId: string; balance: number }) => void;
+  balance: (data: { userId: string; balance: number, pendingBalance: number }) => void;
 }
 
 interface ClientToServerEvents {
@@ -31,7 +31,7 @@ interface ClientToServerEvents {
 // === Response DTO ===
 export class IOReturn {
   status: Status = Status.Fail;
-  data: { user: string; balance: number } = { user: "", balance: 0 };
+  data: { user: string; balance: number, pendingBalance: number } = { user: "", balance: 0, pendingBalance: 0 };
   message: string = "";
 }
 
@@ -104,5 +104,13 @@ export class UserServerSocket {
 
   public swapToken(user: string, value: number, onSuccess: (response: IOReturn) => void): void {
     this.emitEvent("swapToken", { user, value }, onSuccess);
+  }
+
+  public getBalanceAsync(mezonId: string): Promise<IOReturn> {
+    return new Promise((resolve, reject) => {
+      UserServerSocket.instance.getBalance(mezonId, (response: IOReturn) => {
+        resolve(response);
+      });
+    });
   }
 }

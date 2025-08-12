@@ -6,6 +6,7 @@ import swaggerFriend from "./v1/swagger-friend";
 import swaggerLeaderboard from "./v1/swagger-leaderboard";
 import swaggerQuest from "./v1/swagger-quest";
 import swaggerTest from "./v1/swagger-test";
+import swaggerTransaction from "./v1/swagger-transaction";
 import swaggerTutorial from "./v1/swagger-tutorial";
 import swaggerUser from "./v1/swagger-user";
 
@@ -17,6 +18,7 @@ const path = {
   ...swaggerLeaderboard,
   ...swaggerQuest,
   ...swaggerTest,
+  //...swaggerTransaction,
   ...swaggerTutorial,
   ...swaggerUser,
 }
