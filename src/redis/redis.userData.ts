@@ -1,10 +1,7 @@
 import { Logger } from '../logger/winston-logger.config';
 import { SaveUserData } from './redis.utils';
-import { app_constant, CURRENCY_TYPE, ACHIEVEMENT_TYPE, TUTORIAL_ACTION, BASIC_QUEST_TYPE, DAILY_QUEST_TYPE, CONTRACT_EVENT , LEADERBOARD_TYPE } from '../config/constant';
+import { app_constant, CURRENCY_TYPE, ACHIEVEMENT_TYPE, TUTORIAL_ACTION, BASIC_QUEST_TYPE, DAILY_QUEST_TYPE , LEADERBOARD_TYPE } from '../config/constant';
 import { isSameDay, getTimeAtStartOfDay, getTimeAtStartOfWeek } from '../utils/helper';
-import TransactionHistory from '../models/TransactionHistory';
-import { createGameSignature, generateTxId } from '../services/signature.service';
-import { ethers } from 'ethers';
 import { SaveLeaderboard2 } from './redis.utils';
 
 interface CacheData {

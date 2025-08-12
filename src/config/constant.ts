@@ -65,7 +65,7 @@ export async function LoadDataConfig() {
 }
 
 export enum REDIS_KEY {
-  GAME = "{bestguess}",
+  GAME = "{imageclash}",
   USER_DATA = "{userdata}",
   MEZON = "{mezon}",
   FRIEND_CODE = "{friendcode}",
