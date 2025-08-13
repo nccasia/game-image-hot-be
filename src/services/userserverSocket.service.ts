@@ -26,6 +26,14 @@ interface ClientToServerEvents {
     data: { user: string; value: number; hash: string },
     callback: (response: IOReturn) => void
   ) => void;
+  startGame: (
+    data: { gameId: string; players: string[]; playerBets: number[]; game: string; hash: string },
+    callback: (response: IOReturn) => void
+  ) => void;
+  endGame: (
+    data: { gameId: string; winner: string; game: string; hash: string },
+    callback: (response: IOReturn) => void
+  ) => void;
 }
 
 // === Response DTO ===
@@ -106,9 +114,33 @@ export class UserServerSocket {
     this.emitEvent("swapToken", { user, value }, onSuccess);
   }
 
+  public startGame(gameId: string, players: string[], playerBets: number[], onSuccess: (response: IOReturn) => void): void {
+    this.emitEvent("startGame", { gameId, players, playerBets }, onSuccess);
+  }
+
+  public endGame(gameId: string, winner: string, onSuccess: (response: IOReturn) => void): void {
+    this.emitEvent("endGame", { gameId, winner }, onSuccess);
+  }
+
   public getBalanceAsync(mezonId: string): Promise<IOReturn> {
     return new Promise((resolve, reject) => {
       UserServerSocket.instance.getBalance(mezonId, (response: IOReturn) => {
+        resolve(response);
+      });
+    });
+  }
+
+  public startGameAsync(gameId: string, players: string[], playerBets: number[]): Promise<IOReturn> {
+    return new Promise((resolve, reject) => {
+      UserServerSocket.instance.startGame(gameId, players, playerBets, (response: IOReturn) => {
+        resolve(response);
+      });
+    });
+  }
+
+  public endGameAsync(gameId: string, winner: string): Promise<IOReturn> {
+    return new Promise((resolve, reject) => {
+      UserServerSocket.instance.endGame(gameId, winner, (response: IOReturn) => {
         resolve(response);
       });
     });

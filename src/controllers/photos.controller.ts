@@ -10,6 +10,7 @@ import QuestionPhotoHistory from '../models/QuestionPhotoHistory';
 import { getAvailableWalletBalanceInContract, OnBetGame, OnEndGame, isTxUsed } from '../blockchain/service/GameMaster.service';
 import TransactionHistory from '../models/TransactionHistory';
 import { CONTRACT_EVENT } from '../config/constant';
+import { UserServerSocket, IOReturn, Status } from '../services/userserverSocket.service';
 
 export const getRandomQuestion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
@@ -84,17 +85,21 @@ export const betGame = async (req: Request, res: Response, next: NextFunction): 
       return;
     }
 
-    if(process.env.USE_USER_SERVER != 'true') {
-      let transactionBetGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.BET_GAME });
-      if(transactionBetGame) {
-        let isUsed = await isTxUsed(transactionBetGame.itx);
-        if(isUsed) {
-          Logger.error(`Warning Business betGame ${ErrorMessage.TRANSACTION_ALREADY_ENDED} gameId: ${gameId} gameData: ${JSON.stringify(gameData)}`);
-          res.status(HttpStatusCode.OK).json(
-            SendErrorMessage(ErrorCode.TRANSACTION_ALREADY_ENDED, ErrorMessage.TRANSACTION_ALREADY_ENDED)
-          );
-          return;
-        }
+    let transactionBetGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.BET_GAME });
+    if(transactionBetGame) {
+      let isUsed = false;
+      if(process.env.USE_USER_SERVER == 'true') {
+        isUsed = transactionBetGame.status;
+      }
+      else {
+        isUsed = await isTxUsed(transactionBetGame.itx);
+      }
+      if(isUsed) {
+        Logger.error(`Warning Business betGame ${ErrorMessage.TRANSACTION_ALREADY_ENDED} gameId: ${gameId} gameData: ${JSON.stringify(gameData)}`);
+        res.status(HttpStatusCode.OK).json(
+          SendErrorMessage(ErrorCode.TRANSACTION_ALREADY_ENDED, ErrorMessage.TRANSACTION_ALREADY_ENDED)
+        );
+        return;
       }
     }
 
@@ -123,6 +128,16 @@ export const betGame = async (req: Request, res: Response, next: NextFunction): 
           Logger.error(`Warning Business betGame ${ErrorMessage.INVALID_MEZON_ID} ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId}`);
           res.status(HttpStatusCode.OK).json(
             SendErrorMessage(ErrorCode.INVALID_MEZON_ID, ErrorMessage.INVALID_MEZON_ID)
+          );
+          return;
+        }
+
+        const balanceResponse = await UserServerSocket.instance.getBalanceAsync(userData.mezonId as string);
+        let availableBalance = balanceResponse.data.balance - balanceResponse.data.pendingBalance;
+        if(availableBalance < info.amount) {
+          Logger.error(`Warning Business betGame ${ErrorMessage.INSUFFICIENT_RESOURCE} ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId} availableBalance: ${availableBalance} amount: ${info.amount}`);
+          res.status(HttpStatusCode.OK).json(
+            SendErrorMessage(ErrorCode.INSUFFICIENT_RESOURCE, ErrorMessage.INSUFFICIENT_RESOURCE)
           );
           return;
         }
@@ -200,6 +215,39 @@ export const endGame = async (req: Request, res: Response, next: NextFunction): 
       return;
     }
 
+    let isBetGameTxUsed = false;
+    if(process.env.USE_USER_SERVER == 'true') {
+      isBetGameTxUsed = transactionBetGame.status;
+    }
+    else {
+      isBetGameTxUsed = await isTxUsed(transactionBetGame.itx);
+    }
+    if(!isBetGameTxUsed) {
+      Logger.error(`Warning Business endGame ${ErrorMessage.TRANSACTION_NOT_FOUND} ${userData.GetUserDataLogPrefix()} betGame itx: ${transactionBetGame.itx} gameId: ${gameId} winner: ${winner} transactionBetGame: ${transactionBetGame}`);
+      res.status(HttpStatusCode.OK).json(
+        SendErrorMessage(ErrorCode.TRANSACTION_NOT_FOUND, ErrorMessage.TRANSACTION_NOT_FOUND)
+      );
+      return;
+    }
+
+    let transactionEndGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.GAME_ENDED });
+    if(transactionEndGame) {
+      let isUsed = false;
+      if(process.env.USE_USER_SERVER == 'true') {
+        isUsed = transactionEndGame.status;
+      }
+      else {
+        isUsed = await isTxUsed(transactionEndGame.itx);
+      }
+      if(isUsed) {
+        Logger.error(`Warning Business endGame ${ErrorMessage.TRANSACTION_ALREADY_ENDED} gameId: ${gameId} winner: ${winner} itx: ${transactionEndGame.itx}`);
+        res.status(HttpStatusCode.OK).json(
+          SendErrorMessage(ErrorCode.TRANSACTION_ALREADY_ENDED, ErrorMessage.TRANSACTION_ALREADY_ENDED)
+        );
+        return;
+      }
+    }
+
     let winnerAddress = "";
     if(process.env.USE_USER_SERVER == 'true') {
       if(userData.mezonId == "" || userData.mezonId == null) {
@@ -221,27 +269,6 @@ export const endGame = async (req: Request, res: Response, next: NextFunction): 
       }
 
       winnerAddress = userData.walletAddress;
-
-      let isBetGameTxUsed = await isTxUsed(transactionBetGame.itx);
-      if(!isBetGameTxUsed) {
-        Logger.error(`Warning Business endGame ${ErrorMessage.TRANSACTION_NOT_FOUND} ${userData.GetUserDataLogPrefix()} betGame itx: ${transactionBetGame.itx} gameId: ${gameId} winner: ${winner} transactionBetGame: ${transactionBetGame}`);
-        res.status(HttpStatusCode.OK).json(
-          SendErrorMessage(ErrorCode.TRANSACTION_NOT_FOUND, ErrorMessage.TRANSACTION_NOT_FOUND)
-        );
-        return;
-      }
-
-      let transactionEndGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.GAME_ENDED });
-      if(transactionEndGame) {
-        let isUsed = await isTxUsed(transactionEndGame.itx);
-        if(isUsed) {
-          Logger.error(`Warning Business endGame ${ErrorMessage.TRANSACTION_ALREADY_ENDED} gameId: ${gameId} winner: ${winner} itx: ${transactionEndGame.itx}`);
-          res.status(HttpStatusCode.OK).json(
-            SendErrorMessage(ErrorCode.TRANSACTION_ALREADY_ENDED, ErrorMessage.TRANSACTION_ALREADY_ENDED)
-          );
-          return;
-        }
-      }
     }
 
     if(!transactionBetGame.player_wallets.includes(winnerAddress)) {

@@ -131,10 +131,10 @@ connectToDatabase()
       }
       else {
         initGameMasterContract();
-        ScheduleEndGame();
       }
       
       startCronJobs();
+      ScheduleEndGame();
     });
   })
   .catch((err) => {

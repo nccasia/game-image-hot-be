@@ -155,18 +155,22 @@ export class SocketService {
             return;
           }
 
-          if(process.env.USE_USER_SERVER != 'true') {
-            let transactionBetGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.BET_GAME });
-            if(transactionBetGame) {
-              let isUsed = await isTxUsed(transactionBetGame.itx);
-              if(isUsed) {
-                result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.TRANSACTION_ALREADY_ENDED, data);
-                Logger.info(`❌ Warning Event 'betGame' socketId: ${socket.id} ${ErrorMessage.TRANSACTION_ALREADY_ENDED} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
-                if (typeof callback === 'function') {
-                  callback(result);
-                }
-                return;
+          let transactionBetGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.BET_GAME });
+          if(transactionBetGame) {
+            let isUsed = false;
+            if(process.env.USE_USER_SERVER == 'true') {
+              isUsed = transactionBetGame.status;
+            }
+            else {
+              isUsed = await isTxUsed(transactionBetGame.itx);
+            }
+            if(isUsed) {
+              result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.TRANSACTION_ALREADY_ENDED, data);
+              Logger.info(`❌ Warning Event 'betGame' socketId: ${socket.id} ${ErrorMessage.TRANSACTION_ALREADY_ENDED} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+              if (typeof callback === 'function') {
+                callback(result);
               }
+              return;
             }
           }
           
@@ -299,6 +303,41 @@ export class SocketService {
             return;
           }
 
+          let isBetGameTxUsed = false;
+          if(process.env.USE_USER_SERVER == 'true') {
+            isBetGameTxUsed = transactionBetGame.status;
+          }
+          else {
+            isBetGameTxUsed = await isTxUsed(transactionBetGame.itx);
+          }
+          if(!isBetGameTxUsed) {
+            result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.TRANSACTION_NOT_FOUND, data);
+            Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.TRANSACTION_NOT_FOUND} ${userData.GetUserDataLogPrefix()} betGame itx: ${transactionBetGame.itx} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+            if (typeof callback === 'function') {
+              callback(result);
+            }
+            return;
+          }
+
+          let transactionEndGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.GAME_ENDED });
+          if(transactionEndGame) {
+            let isUsed = false;
+            if(process.env.USE_USER_SERVER == 'true') {
+              isUsed = transactionEndGame.status;
+            }
+            else {
+              isUsed = await isTxUsed(transactionEndGame.itx);
+            } 
+            if(isUsed) {
+              result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.TRANSACTION_ALREADY_ENDED, data);
+              Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.TRANSACTION_ALREADY_ENDED} ${userData.GetUserDataLogPrefix()} endGame itx: ${transactionEndGame.itx} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
+              if (typeof callback === 'function') {
+                callback(result);
+              }
+              return;
+            }
+          }
+
           let winnerAddress = "";
           if(process.env.USE_USER_SERVER == 'true') {
             if(userData.mezonId == "" || userData.mezonId == null) {
@@ -321,29 +360,6 @@ export class SocketService {
               return;
             }
             winnerAddress = userData.walletAddress;
-
-            let isBetGameTxUsed = await isTxUsed(transactionBetGame.itx);
-            if(!isBetGameTxUsed) {
-              result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.TRANSACTION_NOT_FOUND, data);
-              Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.TRANSACTION_NOT_FOUND} ${userData.GetUserDataLogPrefix()} betGame itx: ${transactionBetGame.itx} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
-              if (typeof callback === 'function') {
-                callback(result);
-              }
-              return;
-            }
-
-            let transactionEndGame = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.GAME_ENDED });
-            if(transactionEndGame) {
-              let isUsed = await isTxUsed(transactionEndGame.itx);
-              if(isUsed) {
-                result = ResponseMessage(RESPONSE_STATUS.WARNING, ErrorMessage.TRANSACTION_ALREADY_ENDED, data);
-                Logger.info(`❌ Warning Event 'endGame' socketId: ${socket.id} ${ErrorMessage.TRANSACTION_ALREADY_ENDED} ${userData.GetUserDataLogPrefix()} endGame itx: ${transactionEndGame.itx} msg: ${JSON.stringify(msg)} result: ${JSON.stringify(result)}`);
-                if (typeof callback === 'function') {
-                  callback(result);
-                }
-                return;
-              }
-            }
           }
 
           if(!transactionBetGame.player_wallets.includes(winnerAddress)) {
