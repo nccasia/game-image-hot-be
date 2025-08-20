@@ -48,6 +48,8 @@ export const ErrorMessage = {
   INVALID_GAME_ID: "Invalid gameId",
   INVALID_WINNER: "Winner did not participate",
   INVALID_MEZON_ID: "Invalid mezonId",
+  INVALID_CURRENCY_TYPE: "Invalid currency type",
+  VALIDATE_HASH_FAILED: "Verify hash value mismatch",
 
   BAD_REQUEST: "BAD_REQUEST",
   UNAUTHORIZED: "UNAUTHORIZED",

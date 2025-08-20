@@ -9,7 +9,7 @@ import { GetRandomQuestion, OnFinishQuestion } from '../services/photos.service'
 import QuestionPhotoHistory from '../models/QuestionPhotoHistory';
 import { getAvailableWalletBalanceInContract, OnBetGame, OnEndGame, isTxUsed } from '../blockchain/service/GameMaster.service';
 import TransactionHistory from '../models/TransactionHistory';
-import { CONTRACT_EVENT } from '../config/constant';
+import { CONTRACT_EVENT, CURRENCY_TYPE } from '../config/constant';
 import { UserServerSocket, IOReturn, Status } from '../services/userserverSocket.service';
 
 export const getRandomQuestion = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
@@ -75,12 +75,19 @@ export const finishQuestion = async (req: Request, res: Response, next: NextFunc
 export const betGame = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     // Get user input
-    const { gameId, gameData } = req.body;
+    const { gameId, gameData, currencyType } = req.body;
     Logger.info(`Request betGame gameId: ${gameId} gameData: ${JSON.stringify(gameData)}`);
-    if (!gameId || !gameData || !Array.isArray(gameData) || gameData.length === 0) {
-      Logger.warn(`Warning Business betGame ${ErrorMessage.MISSING_PARAMETER} gameId: ${gameId} gameData: ${JSON.stringify(gameData)}`);
+    if (!gameId || !gameData || !Array.isArray(gameData) || gameData.length === 0 || !currencyType) {
+      Logger.warn(`Warning Business betGame ${ErrorMessage.MISSING_PARAMETER} gameId: ${gameId} gameData: ${JSON.stringify(gameData)} currencyType: ${currencyType}`);
       res.status(HttpStatusCode.OK).json(
         SendErrorMessage(ErrorCode.MISSING_PARAMETER, ErrorMessage.MISSING_PARAMETER)
+      );
+      return;
+    }
+    if(!Object.values(CURRENCY_TYPE).includes(currencyType as CURRENCY_TYPE)) {
+      Logger.warn(`Warning Business betGame ${ErrorMessage.INVALID_CURRENCY_TYPE} currencyType: ${currencyType}`);
+      res.status(HttpStatusCode.OK).json(
+        SendErrorMessage(ErrorCode.INVALID_CURRENCY_TYPE, ErrorMessage.INVALID_CURRENCY_TYPE)
       );
       return;
     }
@@ -123,52 +130,51 @@ export const betGame = async (req: Request, res: Response, next: NextFunction): 
         return;
       }
 
-      if(process.env.USE_USER_SERVER == 'true') {
-        if(userData.mezonId == "" || userData.mezonId == null) {
-          Logger.error(`Warning Business betGame ${ErrorMessage.INVALID_MEZON_ID} ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId}`);
-          res.status(HttpStatusCode.OK).json(
-            SendErrorMessage(ErrorCode.INVALID_MEZON_ID, ErrorMessage.INVALID_MEZON_ID)
-          );
-          return;
-        }
+      let availableBalance = 0;
+      if(currencyType == CURRENCY_TYPE.TOKEN) {
+        if(process.env.USE_USER_SERVER == 'true') {
+          if(userData.mezonId == "" || userData.mezonId == null) {
+            Logger.error(`Warning Business betGame ${ErrorMessage.INVALID_MEZON_ID} ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId}`);
+            res.status(HttpStatusCode.OK).json(
+              SendErrorMessage(ErrorCode.INVALID_MEZON_ID, ErrorMessage.INVALID_MEZON_ID)
+            );
+            return;
+          }
 
-        const balanceResponse = await UserServerSocket.instance.getBalanceAsync(userData.mezonId as string);
-        let availableBalance = balanceResponse.data.balance - balanceResponse.data.pendingBalance;
-        if(availableBalance < info.amount) {
-          Logger.error(`Warning Business betGame ${ErrorMessage.INSUFFICIENT_RESOURCE} ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId} availableBalance: ${availableBalance} amount: ${info.amount}`);
-          res.status(HttpStatusCode.OK).json(
-            SendErrorMessage(ErrorCode.INSUFFICIENT_RESOURCE, ErrorMessage.INSUFFICIENT_RESOURCE)
-          );
-          return;
+          const balanceResponse = await UserServerSocket.instance.getBalanceAsync(userData.mezonId as string);
+          availableBalance = balanceResponse.data.balance - balanceResponse.data.pendingBalance;
+          playerWallets.push(userData.mezonId);
         }
+        else {
+          if(userData.walletAddress == "" || userData.walletAddress == null) {
+            Logger.error(`Warning Business betGame ${ErrorMessage.INVALID_WALLET} ${userData.GetUserDataLogPrefix()} walletAddress: ${userData.walletAddress}`);
+            res.status(HttpStatusCode.OK).json(
+              SendErrorMessage(ErrorCode.INVALID_WALLET, ErrorMessage.INVALID_WALLET)
+            );
+            return;
+          }
 
-        playerWallets.push(userData.mezonId);
+          availableBalance = await getAvailableWalletBalanceInContract(userData.walletAddress);
+          playerWallets.push(userData.walletAddress);
+        }
       }
       else {
-        if(userData.walletAddress == "" || userData.walletAddress == null) {
-          Logger.error(`Warning Business betGame ${ErrorMessage.INVALID_WALLET} ${userData.GetUserDataLogPrefix()} walletAddress: ${userData.walletAddress}`);
-          res.status(HttpStatusCode.OK).json(
-            SendErrorMessage(ErrorCode.INVALID_WALLET, ErrorMessage.INVALID_WALLET)
-          );
-          return;
-        }
-
-        let availableBalance = await getAvailableWalletBalanceInContract(userData.walletAddress);
-        if(availableBalance < info.amount) {
-          Logger.error(`Warning Business betGame ${ErrorMessage.INSUFFICIENT_RESOURCE} ${userData.GetUserDataLogPrefix()} walletAddress: ${userData.walletAddress} availableBalance: ${availableBalance} amount: ${info.amount}`);
-          res.status(HttpStatusCode.OK).json(
-            SendErrorMessage(ErrorCode.INSUFFICIENT_RESOURCE, ErrorMessage.INSUFFICIENT_RESOURCE)
-          );
-          return;
-        }
-
-        playerWallets.push(userData.walletAddress);
+        availableBalance = userData.GetCurrencyAmount(currencyType);
+        playerWallets.push(userData.username || '');
       }
+      if(availableBalance < info.amount) {
+        Logger.error(`Warning Business betGame ${ErrorMessage.INSUFFICIENT_RESOURCE} ${userData.GetUserDataLogPrefix()} walletAddress: ${userData.walletAddress} mezonId: ${userData.mezonId} availableBalance: ${availableBalance} amount: ${info.amount}`);
+        res.status(HttpStatusCode.OK).json(
+          SendErrorMessage(ErrorCode.INSUFFICIENT_RESOURCE, ErrorMessage.INSUFFICIENT_RESOURCE)
+        );
+        return;
+      }
+      
       players.push(info.userId);
       playerBets.push(info.amount);
     }
 
-    let result = await OnBetGame(gameId, players, playerWallets, playerBets);
+    let result = await OnBetGame(gameId, players, playerWallets, playerBets, currencyType);
     res.status(HttpStatusCode.OK).json({
       serverTime: new Date(),
       error_code: ErrorCode.NONE,
@@ -249,26 +255,31 @@ export const endGame = async (req: Request, res: Response, next: NextFunction): 
     }
 
     let winnerAddress = "";
-    if(process.env.USE_USER_SERVER == 'true') {
-      if(userData.mezonId == "" || userData.mezonId == null) {
-        Logger.error(`Warning Business endGame ${ErrorMessage.INVALID_MEZON_ID} ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId}`);
-        res.status(HttpStatusCode.OK).json(
-          SendErrorMessage(ErrorCode.INVALID_MEZON_ID, ErrorMessage.INVALID_MEZON_ID)
-        );
-        return;
+    if(transactionBetGame.currency_type == CURRENCY_TYPE.TOKEN) {
+      if(process.env.USE_USER_SERVER == 'true') {
+        if(userData.mezonId == "" || userData.mezonId == null) {
+          Logger.error(`Warning Business endGame ${ErrorMessage.INVALID_MEZON_ID} ${userData.GetUserDataLogPrefix()} mezonId: ${userData.mezonId}`);
+          res.status(HttpStatusCode.OK).json(
+            SendErrorMessage(ErrorCode.INVALID_MEZON_ID, ErrorMessage.INVALID_MEZON_ID)
+          );
+          return;
+        }
+        winnerAddress = userData.mezonId;
       }
-      winnerAddress = userData.mezonId;
+      else {
+        if(userData.walletAddress == "" || userData.walletAddress == null) {
+          Logger.error(`Warning Business endGame ${ErrorMessage.INVALID_WALLET} ${userData.GetUserDataLogPrefix()} gameId: ${gameId} winner: ${winner} walletAddress: ${userData.walletAddress}`);
+          res.status(HttpStatusCode.OK).json(
+            SendErrorMessage(ErrorCode.INVALID_WALLET, ErrorMessage.INVALID_WALLET)
+          );
+          return;
+        }
+
+        winnerAddress = userData.walletAddress;
+      }
     }
     else {
-      if(userData.walletAddress == "" || userData.walletAddress == null) {
-        Logger.error(`Warning Business endGame ${ErrorMessage.INVALID_WALLET} ${userData.GetUserDataLogPrefix()} gameId: ${gameId} winner: ${winner} walletAddress: ${userData.walletAddress}`);
-        res.status(HttpStatusCode.OK).json(
-          SendErrorMessage(ErrorCode.INVALID_WALLET, ErrorMessage.INVALID_WALLET)
-        );
-        return;
-      }
-
-      winnerAddress = userData.walletAddress;
+      winnerAddress = userData.username || '';
     }
 
     if(!transactionBetGame.player_wallets.includes(winnerAddress)) {

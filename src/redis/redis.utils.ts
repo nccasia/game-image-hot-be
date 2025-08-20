@@ -5,6 +5,7 @@ import { Cluster } from "ioredis";
 import { GetGameDataConfigKey, GetUserMezonIdKey, GetUserDataKey, GetUserFriendCodeKey, GetAllUserDataPatternByHashTag, 
   GetLeaderboardKey, GetLeaderboardKey2 } from "./redis.contant";
 import { CacheUserData } from "./redis.userData";
+import BotData from "../data/json/bot.json";
 
 export async function GetRedisKeyData(key: string, retryCount: number = 5): Promise<any> {
   try {
@@ -68,6 +69,12 @@ export async function GetUserData(userId: string): Promise<CacheUserData> {
   let cacheUserData = await GetRedisKeyData(GetUserDataKey(userId));
   if(cacheUserData) {
     return new CacheUserData(JSON.parse(cacheUserData));
+  }
+  else {
+    const botData = BotData.find(element => element.userId == userId);
+    if(botData) {
+      return new CacheUserData(botData);
+    }
   }
   return cacheUserData;
 }
@@ -194,4 +201,11 @@ export async function GetUserRank(rankname: string, userId: string, username: st
 export async function GetLeaderboardSize(rankname: string): Promise<number> {
   const size = await redisClient.zcard(GetLeaderboardKey2(rankname));
   return size;
+}
+
+export async function GetRandomBotData(candyAmount: number): Promise<CacheUserData> {
+  const validBot = BotData.filter(element => element.user_data.user_gold >= candyAmount);
+  const randomIndex = Math.floor(Math.random() * validBot.length);
+  let botData = validBot[randomIndex];
+  return await GetUserData(botData.userId);
 }

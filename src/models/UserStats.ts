@@ -17,6 +17,9 @@ export interface IUserStats extends Document {
   total_gold_change: number;
   daily_gold_change: number;
   weekly_gold_change: number;
+  total_candy_change: number;
+  daily_candy_change: number;
+  weekly_candy_change: number;
 
   getInfo(): Omit<IUserStats, '_id' | '__v' | 'getInfo'>;
 }
@@ -39,6 +42,9 @@ const UserStatsSchema = new Schema<IUserStats>(
     total_gold_change: { type: Number, default: 0 },
     daily_gold_change: { type: Number, default: 0 },
     weekly_gold_change: { type: Number, default: 0 },
+    total_candy_change: { type: Number, default: 0 },
+    daily_candy_change: { type: Number, default: 0 },
+    weekly_candy_change: { type: Number, default: 0 },
   },
   { timestamps: true }
 );
@@ -61,6 +67,9 @@ UserStatsSchema.methods.getInfo = function () {
     total_gold_change: this.total_gold_change,
     daily_gold_change: this.daily_gold_change,
     weekly_gold_change: this.weekly_gold_change,
+    total_candy_change: this.total_candy_change,
+    daily_candy_change: this.daily_candy_change,
+    weekly_candy_change: this.weekly_candy_change,
   };
 };
 

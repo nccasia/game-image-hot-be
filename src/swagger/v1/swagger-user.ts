@@ -875,6 +875,84 @@ const swaggerUser = {
       },
     },
   },
+
+  "/api/v1/users/bot-profile": {
+    get: {
+      tags: ["User"],
+      summary: "Get bot profile data",
+      parameters: [
+        {
+          name: "candyAmount",
+          in: "query",
+          schema: {
+            type: "number",
+            example: "1",
+          },
+          required: true,
+        },
+      ],
+      responses: {
+        200: {
+          description: "Successful response",
+          content: {
+            "application/json": {
+              schema: {
+                properties: {
+                  serverTime: {
+                    $ref: "#/components/schemas/dateTimeStr",
+                  },
+                  error_code: {
+                    type: "integer",
+                  },
+                  data: {
+                    allOf: [
+                      {
+                        $ref: "#/components/schemas/userData",
+                      },
+                    ],
+                  },
+                },
+              },
+            },
+          },
+        },
+        400: {
+          description: "Bad Request",
+          content: {
+            "application/json": {
+              examples: {
+                error1: {
+                  summary: "USER_NOT_FOUND",
+                  value: {
+                    serverTime: "2024-04-15T07:32:01.190Z",
+                    error_code: 7,
+                    error_message: "USER_NOT_FOUND",
+                  },
+                },
+              },
+            },
+          },
+        },
+        500: {
+          description: "Internal server error",
+          content: {
+            "application/json": {
+              examples: {
+                error1: {
+                  summary: "INTERNAL_SERVER_ERROR",
+                  value: {
+                    serverTime: "2024-04-15T07:32:01.190Z",
+                    error_code: 500,
+                    error_message: "INTERNAL_SERVER_ERROR",
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  },
 }
 
 export default swaggerUser;

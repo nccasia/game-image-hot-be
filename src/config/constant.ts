@@ -87,6 +87,8 @@ export enum DATA_FILE {
 export enum CURRENCY_TYPE {
   GOLD = "Gold",
   GEM = "Gem",
+  TOKEN = "token",
+  CANDY = "candy",
 }
 
 export enum BASIC_QUEST_TYPE {
@@ -127,16 +129,19 @@ export enum LEADERBOARD_TYPE {
   TOTAL_GAME_WIN = "total-game-win",
   TOTAL_GAME_LOSE = "total-game-lose",
   TOTAL_GOLD_CHANGE = "total-gold-change",
+  TOTAL_CANDY_CHANGE = "total-candy-change",
   DAILY_GOLD_EARN = "daily-gold-earn",
   DAILY_GOLD_LOSE = "daily-gold-lose",
   DAILY_GAME_WIN = "daily-game-win",
   DAILY_GAME_LOSE = "daily-game-lose",
   DAILY_GOLD_CHANGE = "daily-gold-change",
+  DAILY_CANDY_CHANGE = "daily-candy-change",
   WEEKLY_GOLD_EARN = "weekly-gold-earn",
   WEEKLY_GOLD_LOSE = "weekly-gold-lose",
   WEEKLY_GAME_WIN = "weekly-game-win",
   WEEKLY_GAME_LOSE = "weekly-game-lose",
   WEEKLY_GOLD_CHANGE = "weekly-gold-change",
+  WEEKLY_CANDY_CHANGE = "weekly-candy-change",
 }
 
 export const COUNT_ACHIEVEMENT = 48;

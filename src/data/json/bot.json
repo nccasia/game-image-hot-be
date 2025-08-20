@@ -1,0 +1,902 @@
+[
+	{
+		"_id": "bot_001",
+		"userId": "bot_001",
+		"username": "PixelPhantom",
+		"user_data": {
+			"user_gold": 318321,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_002",
+		"userId": "bot_002",
+		"username": "NovaRider",
+		"user_data": {
+			"user_gold": 12405,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_003",
+		"userId": "bot_003",
+		"username": "EchoStorm",
+		"user_data": {
+			"user_gold": 140329,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_004",
+		"userId": "bot_004",
+		"username": "ByteHunter",
+		"user_data": {
+			"user_gold": 482444,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_005",
+		"userId": "bot_005",
+		"username": "MidnightPulse",
+		"user_data": {
+			"user_gold": 853332,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_006",
+		"userId": "bot_006",
+		"username": "FrostNova",
+		"user_data": {
+			"user_gold": 577703,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_007",
+		"userId": "bot_007",
+		"username": "ShadowVortex",
+		"user_data": {
+			"user_gold": 261575,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_008",
+		"userId": "bot_008",
+		"username": "CosmicJelly",
+		"user_data": {
+			"user_gold": 468652,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_009",
+		"userId": "bot_009",
+		"username": "EmberWolf",
+		"user_data": {
+			"user_gold": 898365,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_010",
+		"userId": "bot_010",
+		"username": "CyberRaven",
+		"user_data": {
+			"user_gold": 202402,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_011",
+		"userId": "bot_011",
+		"username": "LunarEcho",
+		"user_data": {
+			"user_gold": 571486,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_012",
+		"userId": "bot_012",
+		"username": "PhantomPulse",
+		"user_data": {
+			"user_gold": 308733,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_013",
+		"userId": "bot_013",
+		"username": "StarryNomad",
+		"user_data": {
+			"user_gold": 624719,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_014",
+		"userId": "bot_014",
+		"username": "BlazeShift",
+		"user_data": {
+			"user_gold": 274378,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_015",
+		"userId": "bot_015",
+		"username": "QuantumLeaf",
+		"user_data": {
+			"user_gold": 369352,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_016",
+		"userId": "bot_016",
+		"username": "MysticSage",
+		"user_data": {
+			"user_gold": 580414,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_017",
+		"userId": "bot_017",
+		"username": "ZeroCircuit",
+		"user_data": {
+			"user_gold": 639977,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_018",
+		"userId": "bot_018",
+		"username": "IronClaw",
+		"user_data": {
+			"user_gold": 813029,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_019",
+		"userId": "bot_019",
+		"username": "ThunderShade",
+		"user_data": {
+			"user_gold": 887609,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_020",
+		"userId": "bot_020",
+		"username": "SilentOrbit",
+		"user_data": {
+			"user_gold": 478502,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_021",
+		"userId": "bot_021",
+		"username": "RiftBreaker",
+		"user_data": {
+			"user_gold": 85681,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_022",
+		"userId": "bot_022",
+		"username": "SolarWhisper",
+		"user_data": {
+			"user_gold": 362648,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_023",
+		"userId": "bot_023",
+		"username": "CloudDrifter",
+		"user_data": {
+			"user_gold": 209025,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_024",
+		"userId": "bot_024",
+		"username": "NeonStrike",
+		"user_data": {
+			"user_gold": 364817,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_025",
+		"userId": "bot_025",
+		"username": "VenomByte",
+		"user_data": {
+			"user_gold": 53679,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_026",
+		"userId": "bot_026",
+		"username": "WhisperingFox",
+		"user_data": {
+			"user_gold": 681403,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_027",
+		"userId": "bot_027",
+		"username": "OmegaPixel",
+		"user_data": {
+			"user_gold": 471446,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_028",
+		"userId": "bot_028",
+		"username": "SapphireSoul",
+		"user_data": {
+			"user_gold": 363902,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_029",
+		"userId": "bot_029",
+		"username": "RogueNova",
+		"user_data": {
+			"user_gold": 463873,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_030",
+		"userId": "bot_030",
+		"username": "EmberFlare",
+		"user_data": {
+			"user_gold": 438520,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_031",
+		"userId": "bot_031",
+		"username": "VoidReaper",
+		"user_data": {
+			"user_gold": 193230,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_032",
+		"userId": "bot_032",
+		"username": "CrystalBloom",
+		"user_data": {
+			"user_gold": 804600,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_033",
+		"userId": "bot_033",
+		"username": "TitanBlaze",
+		"user_data": {
+			"user_gold": 86133,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_034",
+		"userId": "bot_034",
+		"username": "FrostByte",
+		"user_data": {
+			"user_gold": 558457,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_035",
+		"userId": "bot_035",
+		"username": "PhantomCrown",
+		"user_data": {
+			"user_gold": 363808,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_036",
+		"userId": "bot_036",
+		"username": "NovaSpark",
+		"user_data": {
+			"user_gold": 150425,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_037",
+		"userId": "bot_037",
+		"username": "EmberPulse",
+		"user_data": {
+			"user_gold": 187358,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_038",
+		"userId": "bot_038",
+		"username": "AstralKnight",
+		"user_data": {
+			"user_gold": 384235,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_039",
+		"userId": "bot_039",
+		"username": "IronSpectre",
+		"user_data": {
+			"user_gold": 431755,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_040",
+		"userId": "bot_040",
+		"username": "StarDrifter",
+		"user_data": {
+			"user_gold": 297326,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_041",
+		"userId": "bot_041",
+		"username": "QuantumWolf",
+		"user_data": {
+			"user_gold": 350156,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_042",
+		"userId": "bot_042",
+		"username": "SolarInferno",
+		"user_data": {
+			"user_gold": 685636,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_043",
+		"userId": "bot_043",
+		"username": "MysticOrbit",
+		"user_data": {
+			"user_gold": 758110,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_044",
+		"userId": "bot_044",
+		"username": "PixelHawk",
+		"user_data": {
+			"user_gold": 821613,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_045",
+		"userId": "bot_045",
+		"username": "NeonSpectre",
+		"user_data": {
+			"user_gold": 713342,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_046",
+		"userId": "bot_046",
+		"username": "WhisperStorm",
+		"user_data": {
+			"user_gold": 581926,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_047",
+		"userId": "bot_047",
+		"username": "OmegaDrift",
+		"user_data": {
+			"user_gold": 188419,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_048",
+		"userId": "bot_048",
+		"username": "CrystalNova",
+		"user_data": {
+			"user_gold": 204723,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_049",
+		"userId": "bot_049",
+		"username": "ThunderPulse",
+		"user_data": {
+			"user_gold": 549545,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_050",
+		"userId": "bot_050",
+		"username": "ShadowInferno",
+		"user_data": {
+			"user_gold": 237321,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_051",
+		"userId": "bot_051",
+		"username": "CosmicVibe",
+		"user_data": {
+			"user_gold": 467617,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_052",
+		"userId": "bot_052",
+		"username": "VoidHunter",
+		"user_data": {
+			"user_gold": 246881,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_053",
+		"userId": "bot_053",
+		"username": "EmberPhoenix",
+		"user_data": {
+			"user_gold": 70359,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_054",
+		"userId": "bot_054",
+		"username": "LunarMystic",
+		"user_data": {
+			"user_gold": 489736,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_055",
+		"userId": "bot_055",
+		"username": "FrostDrift",
+		"user_data": {
+			"user_gold": 506032,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_056",
+		"userId": "bot_056",
+		"username": "PhantomShadow",
+		"user_data": {
+			"user_gold": 716091,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_057",
+		"userId": "bot_057",
+		"username": "SolarBloom",
+		"user_data": {
+			"user_gold": 321855,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_058",
+		"userId": "bot_058",
+		"username": "StarryKnight",
+		"user_data": {
+			"user_gold": 713125,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_059",
+		"userId": "bot_059",
+		"username": "NovaStrike",
+		"user_data": {
+			"user_gold": 836977,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_060",
+		"userId": "bot_060",
+		"username": "MysticByte",
+		"user_data": {
+			"user_gold": 332818,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_061",
+		"userId": "bot_061",
+		"username": "WhisperClaw",
+		"user_data": {
+			"user_gold": 97233,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_062",
+		"userId": "bot_062",
+		"username": "QuantumInferno",
+		"user_data": {
+			"user_gold": 751251,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_063",
+		"userId": "bot_063",
+		"username": "EmberShade",
+		"user_data": {
+			"user_gold": 842285,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_064",
+		"userId": "bot_064",
+		"username": "IronDrift",
+		"user_data": {
+			"user_gold": 201864,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_065",
+		"userId": "bot_065",
+		"username": "NeonStorm",
+		"user_data": {
+			"user_gold": 192622,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_066",
+		"userId": "bot_066",
+		"username": "ShadowWolf",
+		"user_data": {
+			"user_gold": 611972,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_067",
+		"userId": "bot_067",
+		"username": "PixelInferno",
+		"user_data": {
+			"user_gold": 283210,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_068",
+		"userId": "bot_068",
+		"username": "OmegaBloom",
+		"user_data": {
+			"user_gold": 543652,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_069",
+		"userId": "bot_069",
+		"username": "FrostNovaX",
+		"user_data": {
+			"user_gold": 407601,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_070",
+		"userId": "bot_070",
+		"username": "PhantomOrbit",
+		"user_data": {
+			"user_gold": 355120,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_071",
+		"userId": "bot_071",
+		"username": "ThunderLeaf",
+		"user_data": {
+			"user_gold": 35219,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_072",
+		"userId": "bot_072",
+		"username": "VoidSpectre",
+		"user_data": {
+			"user_gold": 206650,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_073",
+		"userId": "bot_073",
+		"username": "CosmicEcho",
+		"user_data": {
+			"user_gold": 694424,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_074",
+		"userId": "bot_074",
+		"username": "CrystalStorm",
+		"user_data": {
+			"user_gold": 213127,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_075",
+		"userId": "bot_075",
+		"username": "SolarByte",
+		"user_data": {
+			"user_gold": 556735,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_076",
+		"userId": "bot_076",
+		"username": "RogueKnight",
+		"user_data": {
+			"user_gold": 897394,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_077",
+		"userId": "bot_077",
+		"username": "WhisperPhoenix",
+		"user_data": {
+			"user_gold": 782219,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_078",
+		"userId": "bot_078",
+		"username": "AstralFlare",
+		"user_data": {
+			"user_gold": 794357,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_079",
+		"userId": "bot_079",
+		"username": "NovaCrown",
+		"user_data": {
+			"user_gold": 687292,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_080",
+		"userId": "bot_080",
+		"username": "MysticBlaze",
+		"user_data": {
+			"user_gold": 669106,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_081",
+		"userId": "bot_081",
+		"username": "EmberDrift",
+		"user_data": {
+			"user_gold": 486992,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_082",
+		"userId": "bot_082",
+		"username": "IronVortex",
+		"user_data": {
+			"user_gold": 633342,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_083",
+		"userId": "bot_083",
+		"username": "NeonShadow",
+		"user_data": {
+			"user_gold": 306994,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_084",
+		"userId": "bot_084",
+		"username": "FrostReaper",
+		"user_data": {
+			"user_gold": 815480,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_085",
+		"userId": "bot_085",
+		"username": "PhantomPulseX",
+		"user_data": {
+			"user_gold": 745755,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_086",
+		"userId": "bot_086",
+		"username": "StarWhisper",
+		"user_data": {
+			"user_gold": 864620,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_087",
+		"userId": "bot_087",
+		"username": "OmegaSpectre",
+		"user_data": {
+			"user_gold": 178512,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_088",
+		"userId": "bot_088",
+		"username": "SolarWolf",
+		"user_data": {
+			"user_gold": 373802,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_089",
+		"userId": "bot_089",
+		"username": "QuantumRider",
+		"user_data": {
+			"user_gold": 49306,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_090",
+		"userId": "bot_090",
+		"username": "CosmicShade",
+		"user_data": {
+			"user_gold": 271974,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_091",
+		"userId": "bot_091",
+		"username": "EmberOrbit",
+		"user_data": {
+			"user_gold": 867356,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_092",
+		"userId": "bot_092",
+		"username": "ShadowNova",
+		"user_data": {
+			"user_gold": 29051,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_093",
+		"userId": "bot_093",
+		"username": "MysticBloom",
+		"user_data": {
+			"user_gold": 778939,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_094",
+		"userId": "bot_094",
+		"username": "ThunderDrift",
+		"user_data": {
+			"user_gold": 593321,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_095",
+		"userId": "bot_095",
+		"username": "FrostPhoenix",
+		"user_data": {
+			"user_gold": 513504,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_096",
+		"userId": "bot_096",
+		"username": "PixelStorm",
+		"user_data": {
+			"user_gold": 356469,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_097",
+		"userId": "bot_097",
+		"username": "CrystalEcho",
+		"user_data": {
+			"user_gold": 329110,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_098",
+		"userId": "bot_098",
+		"username": "RogueFlare",
+		"user_data": {
+			"user_gold": 291702,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_099",
+		"userId": "bot_099",
+		"username": "VoidKnight",
+		"user_data": {
+			"user_gold": 568596,
+			"user_gem": 0
+		}
+	},
+	{
+		"_id": "bot_100",
+		"userId": "bot_100",
+		"username": "NovaWolf",
+		"user_data": {
+			"user_gold": 441238,
+			"user_gem": 0
+		}
+	}
+]

@@ -16,6 +16,9 @@ export interface IUserStatsData extends Document {
   total_gold_change: number;
   daily_gold_change: number;
   weekly_gold_change: number;
+  total_candy_change: number;
+  daily_candy_change: number;
+  weekly_candy_change: number;
   daily_game: number;
   daily_reset_time: Date;
   weekly_reset_time: Date;
@@ -42,6 +45,9 @@ const UserStatsDataSchema = new Schema<IUserStatsData>(
     total_gold_change: { type: Number, default: 0 },
     daily_gold_change: { type: Number, default: 0 },
     weekly_gold_change: { type: Number, default: 0 },
+    total_candy_change: { type: Number, default: 0 },
+    daily_candy_change: { type: Number, default: 0 },
+    weekly_candy_change: { type: Number, default: 0 },
     daily_game: { type: Number, default: 0 },
     daily_reset_time: { type: Date, default: Date.now },
     weekly_reset_time: { type: Date, default: Date.now },
@@ -69,6 +75,9 @@ UserStatsDataSchema.methods.getInfo = function () {
     total_gold_change: this.total_gold_change,
     daily_gold_change: this.daily_gold_change,
     weekly_gold_change: this.weekly_gold_change,
+    total_candy_change: this.total_candy_change,
+    daily_candy_change: this.daily_candy_change,
+    weekly_candy_change: this.weekly_candy_change,
     daily_game: this.daily_game,
     daily_reset_time: this.daily_reset_time,
     weekly_reset_time: this.weekly_reset_time,
@@ -91,6 +100,9 @@ UserStatsDataSchema.methods.ResetData = function () {
   this.total_gold_change = 0;
   this.daily_gold_change = 0;
   this.weekly_gold_change = 0;
+  this.total_candy_change = 0;
+  this.daily_candy_change = 0;
+  this.weekly_candy_change = 0;
   this.daily_game = 0;
 };
 

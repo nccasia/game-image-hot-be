@@ -8,7 +8,7 @@ import asyncMiddleware from '../../middleware/async_middleware';
 
 // Controller
 import { registerEmail, loginEmail, loginMezon, changePassword, getProfileData, AddCurrencyToAccount, getBalance,
-  loginPrivy, linkWallet, changeUserName
+  loginPrivy, linkWallet, changeUserName, getBotProfileData
  } from '../../controllers/profile.controller';
 
 const router: Router = express.Router();
@@ -31,5 +31,6 @@ router.post("/users/link-wallet", auth, asyncMiddleware(linkWallet));
 router.post("/users/change-username", auth, asyncMiddleware(changeUserName));
 
 router.post('/users/add-currency', adminAuth, asyncMiddleware(AddCurrencyToAccount));
+router.get('/users/bot-profile', asyncMiddleware(getBotProfileData));
 
 export default router;

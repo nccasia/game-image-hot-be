@@ -11,7 +11,7 @@ import * as querystring from 'querystring';
 import User from '../models/User';
 import UserData from '../models/Userdata';
 import { GetUserDataIdByMezonId, SaveUserDataIdByMezonId, GetUserData, SaveUserData, 
-  GetUserDataIdByFriendCode, SetUserDataIdByFriendCode } from '../redis/redis.utils';
+  GetUserDataIdByFriendCode, SetUserDataIdByFriendCode, GetRandomBotData } from '../redis/redis.utils';
 import { isValidEmail, isValidReferralCode, isValidUsername } from '../utils/validator.utils';
 import { ACCOUNT_TYPE } from '../config/constant';
 import { GenerateHash, CreateShake256Hash } from '../utils/helper';
@@ -193,18 +193,18 @@ export const loginMezon = async (req: Request, res: Response, next: NextFunction
     Logger.info(`Request loginMezon hash: ${hash} hashGenerate: ${hashGenerate}`);
     let isVerifyAuthorization = Boolean(hashGenerate === hash);
     if (!isVerifyAuthorization) {
-      Logger.error(`Error loginMezon Auth Mezon Account Failed ${ErrorMessage.BAD_REQUEST} userid: ${userid} username: ${username} isVerifyAuthorization: ${isVerifyAuthorization} hash: ${hash} hashGenerate: ${hashGenerate}`);
+      Logger.error(`Error loginMezon Auth Mezon Account Failed ${ErrorMessage.VALIDATE_HASH_FAILED} userid: ${userid} username: ${username} isVerifyAuthorization: ${isVerifyAuthorization} hash: ${hash} hashGenerate: ${hashGenerate}`);
       res.status(HttpStatusCode.BAD_REQUEST).json(
-        SendErrorMessage(ErrorCode.BAD_REQUEST, ErrorMessage.BAD_REQUEST)
+        SendErrorMessage(ErrorCode.VALIDATE_HASH_FAILED, ErrorMessage.VALIDATE_HASH_FAILED)
       );
       return;
     }
 
     const userServerData = await LoginMezonInUserServer(authData);
     if(userServerData.errorCode != 0) {
-      Logger.error(`Error loginMezon Auth Mezon Account Failed ${ErrorMessage.BAD_REQUEST} userid: ${userid} username: ${username} isVerifyAuthorization: ${isVerifyAuthorization} hash: ${hash} hashGenerate: ${hashGenerate}`);
+      Logger.error(`Error loginMezon Auth Mezon Account Failed ${ErrorMessage.VALIDATE_HASH_FAILED} userid: ${userid} username: ${username} isVerifyAuthorization: ${isVerifyAuthorization} hash: ${hash} hashGenerate: ${hashGenerate}`);
       res.status(HttpStatusCode.BAD_REQUEST).json(
-        SendErrorMessage(ErrorCode.BAD_REQUEST, ErrorMessage.BAD_REQUEST)
+        SendErrorMessage(ErrorCode.VALIDATE_HASH_FAILED, ErrorMessage.VALIDATE_HASH_FAILED)
       );
       return;
     }
@@ -709,6 +709,43 @@ export const changeUserName = async (req: Request, res: Response, next: NextFunc
     return;
   } catch (err) {
     Logger.error(`Error ChangeUserName ${ErrorMessage.INTERNAL_SERVER_ERROR} err: ${err}`);
+    res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json(
+      SendErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR, ErrorMessage.INTERNAL_SERVER_ERROR)
+    );
+    return;
+  }
+};
+
+export const getBotProfileData = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const { candyAmount } = req.query;
+    Logger.info(`Request getBotProfileData candyAmount: ${candyAmount}`);
+    const amount = Number(candyAmount);
+    if(!amount || isNaN(amount) || amount <= 0) {
+      Logger.warn(`Warning Business getBotProfileData ${ErrorMessage.MISSING_PARAMETER} candyAmount: ${candyAmount}`);
+      res.status(HttpStatusCode.OK).json(
+        SendErrorMessage(ErrorCode.MISSING_PARAMETER, ErrorMessage.MISSING_PARAMETER)
+      );
+      return;
+    }
+    let redisUserData = await GetRandomBotData(amount);
+    if(!redisUserData) {
+      Logger.error(`Error getBotProfileData ${ErrorMessage.USER_NOT_FOUND}`);
+      res.status(HttpStatusCode.OK).json(
+        SendErrorMessage(ErrorCode.USER_NOT_FOUND, ErrorMessage.USER_NOT_FOUND)
+      );
+      return;
+    }
+    res.status(HttpStatusCode.OK).json({
+      serverTime: new Date(),
+      error_code: ErrorCode.NONE,
+      data: {
+        ...redisUserData.getInfo(),
+      }
+    });
+    return;
+  } catch (err) {
+    Logger.error(`Error getBotProfileData ${ErrorMessage.INTERNAL_SERVER_ERROR} err: ${err}`);
     res.status(HttpStatusCode.INTERNAL_SERVER_ERROR).json(
       SendErrorMessage(ErrorCode.INTERNAL_SERVER_ERROR, ErrorMessage.INTERNAL_SERVER_ERROR)
     );

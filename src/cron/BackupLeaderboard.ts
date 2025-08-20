@@ -519,12 +519,15 @@ async function SaveLeaderboardAndExportToCSV(leaderboardName: string, data: any[
     case LEADERBOARD_TYPE.TOTAL_GOLD_EARN:
     case LEADERBOARD_TYPE.TOTAL_GOLD_LOSE:
     case LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE:
+    case LEADERBOARD_TYPE.TOTAL_CANDY_CHANGE:
     case LEADERBOARD_TYPE.DAILY_GOLD_EARN:
     case LEADERBOARD_TYPE.DAILY_GOLD_LOSE:
     case LEADERBOARD_TYPE.DAILY_GOLD_CHANGE:
+    case LEADERBOARD_TYPE.DAILY_CANDY_CHANGE:
     case LEADERBOARD_TYPE.WEEKLY_GOLD_EARN:
     case LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE:
     case LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE:
+    case LEADERBOARD_TYPE.WEEKLY_CANDY_CHANGE:
       headers = [
         { key: 'userId', label: 'UserId' },
         { key: 'username', label: 'Name' },
@@ -597,16 +600,19 @@ export async function startCronJobs() {
       await BackupLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_LOSE, resetDaily);
       await BackupLeaderboard(LEADERBOARD_TYPE.DAILY_GAME_WIN, resetDaily);
       await BackupLeaderboard(LEADERBOARD_TYPE.DAILY_GAME_LOSE, resetDaily);
+      await BackupLeaderboard(LEADERBOARD_TYPE.DAILY_CANDY_CHANGE, resetDaily);
       await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, resetDaily);
       await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_GOLD_EARN, resetDaily);
       await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_GOLD_LOSE, resetDaily);
       await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_GAME_WIN, resetDaily);
       await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_GAME_LOSE, resetDaily);
+      await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_CANDY_CHANGE, resetDaily);
       await DeleteLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE);
       await DeleteLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_EARN);
       await DeleteLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_LOSE);
       await DeleteLeaderboard(LEADERBOARD_TYPE.DAILY_GAME_WIN);
       await DeleteLeaderboard(LEADERBOARD_TYPE.DAILY_GAME_LOSE);
+      await DeleteLeaderboard(LEADERBOARD_TYPE.DAILY_CANDY_CHANGE);
       Logger.info('✅ Daily leaderboard cleared');
     } catch (err) {
       Logger.error('❌ Failed to clear daily leaderboard:', err);
@@ -622,11 +628,14 @@ export async function startCronJobs() {
       await BackupLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE, resetWeekly);
       await BackupLeaderboard(LEADERBOARD_TYPE.WEEKLY_GAME_WIN, resetWeekly);
       await BackupLeaderboard(LEADERBOARD_TYPE.WEEKLY_GAME_LOSE, resetWeekly);
+      await BackupLeaderboard(LEADERBOARD_TYPE.WEEKLY_CANDY_CHANGE, resetWeekly);
       await DeleteLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE);
       await DeleteLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_EARN);
       await DeleteLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE);
       await DeleteLeaderboard(LEADERBOARD_TYPE.WEEKLY_GAME_WIN);
       await DeleteLeaderboard(LEADERBOARD_TYPE.WEEKLY_GAME_LOSE);
+      await DeleteLeaderboard(LEADERBOARD_TYPE.WEEKLY_CANDY_CHANGE);
+      
       Logger.info('✅ Weekly leaderboard cleared');
     } catch (err) {
       Logger.error('❌ Failed to clear weekly leaderboard:', err);

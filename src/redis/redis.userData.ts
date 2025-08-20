@@ -192,6 +192,7 @@ export class CacheUserData {
     let result: any = {};
     switch(currencyType) {
       case CURRENCY_TYPE.GOLD:
+      case CURRENCY_TYPE.CANDY:
         result.user_gold = this.user_data.user_gold;
         break;
       case CURRENCY_TYPE.GEM:
@@ -210,6 +211,7 @@ export class CacheUserData {
     let result = 0;
     switch(currencyType) {
       case CURRENCY_TYPE.GOLD:
+      case CURRENCY_TYPE.CANDY:
         result = this.user_data.user_gold;
         break;
       case CURRENCY_TYPE.GEM:
@@ -229,6 +231,7 @@ export class CacheUserData {
     let result = false;
     switch(currencyType) {
       case CURRENCY_TYPE.GOLD:
+      case CURRENCY_TYPE.CANDY:
         result = this.user_data.user_gold >= amount;
         break;
       case CURRENCY_TYPE.GEM:
@@ -253,10 +256,13 @@ export class CacheUserData {
       Logger.info(`${this.GetUserDataLogPrefix()} SpendCurrency currencyType: ${currencyType} amount: ${amount}`);
       switch(currencyType) {
         case CURRENCY_TYPE.GOLD:
+        case CURRENCY_TYPE.CANDY:
           this.user_data.user_gold -= amount;
+          if(this.user_data.user_gold < 0) this.user_data.user_gold = 0;
           break;
         case CURRENCY_TYPE.GEM:
           this.user_data.user_gem -= amount;
+          if(this.user_data.user_gem < 0) this.user_data.user_gem = 0;
           result = await this.UpdateAchievementAmount(ACHIEVEMENT_TYPE.GEM_CONSUMPTION, amount);
           break;
         default:
@@ -279,6 +285,7 @@ export class CacheUserData {
       Logger.info(`${this.GetUserDataLogPrefix()} EarnCurrency currencyType: ${currencyType} amount: ${amount}`);
       switch(currencyType) {
         case CURRENCY_TYPE.GOLD:
+        case CURRENCY_TYPE.CANDY:
           this.user_data.user_gold += amount;
           this.user_stats.daily_gold_earn += amount;
           this.user_stats.weekly_gold_earn += amount;
@@ -584,59 +591,85 @@ export class CacheUserData {
     return result;
   }
 
-  async OnEndGame(isWin: boolean, amount: number) {
+  async OnEndGame(isWin: boolean, currencyType: CURRENCY_TYPE, amount: number) {
     let result: any = {};
     result.dailyQuest = [];
     Logger.info(`${this.GetUserDataLogPrefix()} OnEndGame isWin: ${isWin} amount: ${amount}`);
     if(isWin) {
-      this.user_stats.total_gold_earn += amount;
-      this.user_stats.daily_gold_earn += amount;
-      this.user_stats.weekly_gold_earn += amount;
       this.user_stats.total_game_win += 1;
       this.user_stats.daily_game_win += 1;
       this.user_stats.weekly_game_win += 1;
-      this.user_stats.total_gold_change += amount;
-      this.user_stats.daily_gold_change += amount;
-      this.user_stats.weekly_gold_change += amount;
-
-      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, this.userId, amount);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, this.userId, amount);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, this.userId, amount);
-
-      await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_EARN, this.userId, amount);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_EARN, this.userId, amount);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_EARN, this.userId, amount);
-
       await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GAME_WIN, this.userId, 1);
       await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GAME_WIN, this.userId, 1);
       await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GAME_WIN, this.userId, 1);
+
+      if(currencyType == CURRENCY_TYPE.TOKEN) {
+        this.user_stats.total_gold_earn += amount;
+        this.user_stats.daily_gold_earn += amount;
+        this.user_stats.weekly_gold_earn += amount;
+        this.user_stats.total_gold_change += amount;
+        this.user_stats.daily_gold_change += amount;
+        this.user_stats.weekly_gold_change += amount;
+
+        await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, this.userId, amount);
+        await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, this.userId, amount);
+        await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, this.userId, amount);
+
+        await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_EARN, this.userId, amount);
+        await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_EARN, this.userId, amount);
+        await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_EARN, this.userId, amount);
+      }
+      else {
+        await this.EarnCurrency(currencyType, amount, false);
+
+        this.user_stats.total_candy_change += amount;
+        this.user_stats.daily_candy_change += amount;
+        this.user_stats.weekly_candy_change += amount;
+
+        await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_CANDY_CHANGE, this.userId, amount);
+        await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_CANDY_CHANGE, this.userId, amount);
+        await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_CANDY_CHANGE, this.userId, amount);
+      }
 
       let dailyWins = await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_WIN, this.user_stats.daily_game_win);
       result.dailyQuest = [...result.dailyQuest, ...dailyWins];
       result.dailyGameWin = this.user_stats.daily_game_win;
     }
     else {
-      this.user_stats.total_gold_lose += amount;
-      this.user_stats.daily_gold_lose += amount;
-      this.user_stats.weekly_gold_lose += amount;
       this.user_stats.total_game_lose += 1;
       this.user_stats.daily_game_lose += 1;
       this.user_stats.weekly_game_lose += 1;
-      this.user_stats.total_gold_change -= amount;
-      this.user_stats.daily_gold_change -= amount;
-      this.user_stats.weekly_gold_change -= amount;
-
-      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, this.userId, -amount);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, this.userId, -amount);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, this.userId, -amount);
-
-      await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_LOSE, this.userId, -amount);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_LOSE, this.userId, -amount);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE, this.userId, -amount);
-
       await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GAME_LOSE, this.userId, 1);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_LOSE, this.userId, 1);
+      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GAME_LOSE, this.userId, 1);
       await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GAME_LOSE, this.userId, 1);
+
+      if(currencyType == CURRENCY_TYPE.TOKEN) {
+        this.user_stats.total_gold_lose += amount;
+        this.user_stats.daily_gold_lose += amount;
+        this.user_stats.weekly_gold_lose += amount;
+        this.user_stats.total_gold_change -= amount;
+        this.user_stats.daily_gold_change -= amount;
+        this.user_stats.weekly_gold_change -= amount;
+
+        await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, this.userId, -amount);
+        await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, this.userId, -amount);
+        await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, this.userId, -amount);
+
+        await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_LOSE, this.userId, -amount);
+        await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_LOSE, this.userId, -amount);
+        await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE, this.userId, -amount);
+      }
+      else {
+        await this.SpendCurrency(currencyType, amount, false);
+
+        this.user_stats.total_candy_change -= amount;
+        this.user_stats.daily_candy_change -= amount;
+        this.user_stats.weekly_candy_change -= amount;
+
+        await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_CANDY_CHANGE, this.userId, -amount);
+        await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_CANDY_CHANGE, this.userId, -amount);
+        await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_CANDY_CHANGE, this.userId, -amount);
+      }
     }
     this.user_stats.daily_game++;
     let dailyGames = await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_GAME, this.user_stats.daily_game);

@@ -16,6 +16,7 @@ export interface ITransactionHistory extends Document {
   player_bets: number[];
   winner: string;
   winner_amount: number;
+  currency_type: string;
   timestamp: number;
   status: boolean;
   signature: string;
@@ -39,6 +40,7 @@ const TransactionHistorySchema: Schema<ITransactionHistory> = new Schema(
     player_bets: { type: [Number], default: [] },
     winner: { type: String, default: '' }, 
     winner_amount: { type: Number, default: 0 },
+    currency_type: { type: String, default: '' },
     timestamp: { type: Number, default: 0 },
     status: { type: Boolean, default: false },
     signature: { type: String, default: '' },
@@ -62,6 +64,7 @@ TransactionHistorySchema.methods.getInfo = function () {
     player_bets: this.player_bets,
     winner: this.winner,
     winner_amount: this.winner_amount,
+    currency_type: this.currency_type,
     timestamp: this.timestamp,
     status: this.status,
   };

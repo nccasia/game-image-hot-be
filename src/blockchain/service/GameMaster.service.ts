@@ -1,7 +1,6 @@
 import { Logger } from '../../logger/winston-logger.config';
 import GameMaster from '../abi/GameMaster.json';
-import { CONTRACT_EVENT, RESPONSE_STATUS, RESPONSE_MESSAGE } from '../../config/constant';
-import { ErrorMessage } from '../../config/error_message';
+import { CONTRACT_EVENT, CURRENCY_TYPE } from '../../config/constant';
 import { OnEventReceived } from '../../services/transaction.service';
 import { gameMasterContract } from '../contract/GameMaster.contract';
 import TransactionHistory, { ITransactionHistory } from '../../models/TransactionHistory';
@@ -9,6 +8,7 @@ import { generateTxId } from '../../services/signature.service';
 import { OnEndGameUserStat } from '../../services/userStats.service';
 import { ethers } from 'ethers';
 import { UserServerSocket, IOReturn, Status } from '../../services/userserverSocket.service';
+import { GetUserData } from '../../redis/redis.utils';
 
 export async function isTransactionMined(tx_hash: string) {
   const txReceipt = await gameMasterContract.provider.getTransactionReceipt(tx_hash);
@@ -146,12 +146,13 @@ export async function getPastEventsFromBlock(fromBlock: number, toBlock: number)
   return result;
 }
 
-export async function OnBetGame(gameId: string, players: string[], playerWallets: string[], playerBets: number[]): Promise<any> {
+export async function OnBetGame(gameId: string, players: string[], playerWallets: string[], playerBets: number[], currencyType: string): Promise<any> {
   let signData: any = {};
   signData.game_id = gameId;
   signData.players = players;
   signData.player_wallets = playerWallets;
   signData.player_bets = playerBets;
+  signData.currency_type = currencyType;
   let transactionHistory = await TransactionHistory.findOne({ game_id: gameId, event: CONTRACT_EVENT.BET_GAME});
   if(!transactionHistory) {
     transactionHistory = await TransactionHistory.create({
@@ -162,26 +163,31 @@ export async function OnBetGame(gameId: string, players: string[], playerWallets
     await transactionHistory.updateOne({ $set: { 'itx': transactionHistory.itx } });
   }
   let data: any = {};
-  if(process.env.USE_USER_SERVER == 'true') {
-    const startGameResponse = await UserServerSocket.instance.startGameAsync(transactionHistory.id.toString(), transactionHistory.player_wallets, transactionHistory.player_bets);
-    if(startGameResponse.status == Status.Success) {
-      await transactionHistory.updateOne({ $set: { status: true } });
+  if(transactionHistory.currency_type == CURRENCY_TYPE.TOKEN) {
+    if(process.env.USE_USER_SERVER == 'true') {
+      const startGameResponse = await UserServerSocket.instance.startGameAsync(transactionHistory.id.toString(), transactionHistory.player_wallets, transactionHistory.player_bets);
+      if(startGameResponse.status == Status.Success) {
+        await transactionHistory.updateOne({ $set: { status: true } });
+      }
+    }
+    else {
+      let isUsed = await isTxUsed(transactionHistory.itx);
+      if(!isUsed) {
+        data = {
+          itx: transactionHistory.itx,
+          gameId,
+          players: transactionHistory.player_wallets,
+          playerBets: playerBets.map((element: any) => ethers.utils.parseEther(element.toString()).toString()),
+        }
+        const betGameTx = await gameMasterContract.betGame(data.itx, data.gameId, data.players, data.playerBets);
+        await betGameTx.wait();
+        await transactionHistory.updateOne({ $set: { 'tx_hash': betGameTx.hash, status: true } });
+        Logger.info(`Transaction hash of betGame: ${betGameTx.hash}`);
+      }
     }
   }
   else {
-    let isUsed = await isTxUsed(transactionHistory.itx);
-    if(!isUsed) {
-      data = {
-        itx: transactionHistory.itx,
-        gameId,
-        players: transactionHistory.player_wallets,
-        playerBets: playerBets.map((element: any) => ethers.utils.parseEther(element.toString()).toString()),
-      }
-      const betGameTx = await gameMasterContract.betGame(data.itx, data.gameId, data.players, data.playerBets);
-      await betGameTx.wait();
-      await transactionHistory.updateOne({ $set: { 'tx_hash': betGameTx.hash, status: true } });
-      Logger.info(`Transaction hash of betGame: ${betGameTx.hash}`);
-    }
+    await transactionHistory.updateOne({ $set: { status: true } });
   }
   
   return data;
@@ -193,6 +199,7 @@ export async function OnEndGame(transactionBetGame: ITransactionHistory, winner:
   signData.players = transactionBetGame.players;
   signData.player_wallets = transactionBetGame.player_wallets;
   signData.player_bets = transactionBetGame.player_bets;
+  signData.currency_type = transactionBetGame.currency_type;
   signData.user_id = winner;
   signData.winner = winerAddress;
   let winnerAmount = 0;
@@ -211,25 +218,28 @@ export async function OnEndGame(transactionBetGame: ITransactionHistory, winner:
     transactionHistory.itx = generateTxId(transactionHistory.id.toString());
     await transactionHistory.updateOne({ $set: { 'itx': transactionHistory.itx } });
   }
-  if(process.env.USE_USER_SERVER == 'true') {
-    const endGameResponse = await UserServerSocket.instance.endGameAsync(transactionBetGame.id.toString(), transactionHistory.winner);
-    if(endGameResponse.status == Status.Success) {
-      await transactionHistory.updateOne({ $set: { status: true } });
-    }
-  }
-  else {
-    let data: any = {};
-    let isUsed = await isTxUsed(transactionHistory.itx);
-    if(!isUsed) {
-      data = {
-        itx: transactionHistory.itx,
-        gameId: transactionHistory.game_id,
-        winner: transactionHistory.winner,
+
+  if(transactionHistory.currency_type == CURRENCY_TYPE.TOKEN) {
+    if(process.env.USE_USER_SERVER == 'true') {
+      const endGameResponse = await UserServerSocket.instance.endGameAsync(transactionBetGame.id.toString(), transactionHistory.winner);
+      if(endGameResponse.status == Status.Success) {
+        await transactionHistory.updateOne({ $set: { status: true } });
       }
-      const endGameTx = await gameMasterContract.endGame(data.itx, data.gameId, data.winner);
-      await endGameTx.wait();
-      await transactionHistory.updateOne({ $set: { 'tx_hash': endGameTx.hash, status: true } });
-      Logger.info(`Transaction hash of endGame: ${endGameTx.hash}`);
+    }
+    else {
+      let data: any = {};
+      let isUsed = await isTxUsed(transactionHistory.itx);
+      if(!isUsed) {
+        data = {
+          itx: transactionHistory.itx,
+          gameId: transactionHistory.game_id,
+          winner: transactionHistory.winner,
+        }
+        const endGameTx = await gameMasterContract.endGame(data.itx, data.gameId, data.winner);
+        await endGameTx.wait();
+        await transactionHistory.updateOne({ $set: { 'tx_hash': endGameTx.hash, status: true } });
+        Logger.info(`Transaction hash of endGame: ${endGameTx.hash}`);
+      }
     }
   }
   
@@ -243,32 +253,35 @@ export async function OnEndGameRecheck(): Promise<any> {
     let transactionEndGames = await TransactionHistory.find({ event: CONTRACT_EVENT.GAME_ENDED, status: false, createdAt: { $lte: tenMinutesAgo } });
     for(let endGame of transactionEndGames) {
       Logger.info(`Handle transaction endGame: ${endGame.itx}`);
-      if(process.env.USE_USER_SERVER == 'true') {
-        let transactionBetGame = await TransactionHistory.findOne({ game_id: endGame.game_id, event: CONTRACT_EVENT.BET_GAME, status: true });
-        if(transactionBetGame) {
-          const endGameResponse = await UserServerSocket.instance.endGameAsync(transactionBetGame.id.toString(), endGame.winner);
-          if(endGameResponse.status == Status.Success) {
+      if(endGame.currency_type == CURRENCY_TYPE.TOKEN) {
+        if(process.env.USE_USER_SERVER == 'true') {
+          let transactionBetGame = await TransactionHistory.findOne({ game_id: endGame.game_id, event: CONTRACT_EVENT.BET_GAME, status: true });
+          if(transactionBetGame) {
+            const endGameResponse = await UserServerSocket.instance.endGameAsync(transactionBetGame.id.toString(), endGame.winner);
+            if(endGameResponse.status == Status.Success) {
+              await endGame.updateOne({ $set: { status: true } });
+            }
+          }
+        }
+        else {
+          let isUsed = await isTxUsed(endGame.itx);
+          if(!isUsed) {
+            data = {
+              itx: endGame.itx,
+              gameId: endGame.game_id,
+              winner: endGame.winner,
+            }
+            const endGameTx = await gameMasterContract.endGame(data.itx, data.gameId, data.winner);
+            await endGameTx.wait();
+            await endGame.updateOne({ $set: { 'tx_hash': endGameTx.hash, status: true } });
+            Logger.info(`Transaction hash of endGame: ${endGameTx.hash}`);
+          }
+          else {
             await endGame.updateOne({ $set: { status: true } });
           }
         }
       }
-      else {
-        let isUsed = await isTxUsed(endGame.itx);
-        if(!isUsed) {
-          data = {
-            itx: endGame.itx,
-            gameId: endGame.game_id,
-            winner: endGame.winner,
-          }
-          const endGameTx = await gameMasterContract.endGame(data.itx, data.gameId, data.winner);
-          await endGameTx.wait();
-          await endGame.updateOne({ $set: { 'tx_hash': endGameTx.hash, status: true } });
-          Logger.info(`Transaction hash of endGame: ${endGameTx.hash}`);
-        }
-        else {
-          await endGame.updateOne({ $set: { status: true } });
-        }
-      }
+      await OnEndGameUserStat(endGame);
     }
   } catch(e) {
     Logger.error(`❌ Error in 'ScheduleEndGame' event: ${e}`);
