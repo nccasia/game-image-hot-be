@@ -3,7 +3,7 @@ import redisClient from "./redis.config";
 import redlock from "./redlock.config";
 import { Cluster } from "ioredis";
 import { GetGameDataConfigKey, GetUserMezonIdKey, GetUserDataKey, GetUserFriendCodeKey, GetAllUserDataPatternByHashTag, 
-  GetLeaderboardKey, GetLeaderboardKey2 } from "./redis.contant";
+  GetLeaderboardKey } from "./redis.contant";
 import { CacheUserData } from "./redis.userData";
 import BotData from "../data/json/bot.json";
 
@@ -142,33 +142,16 @@ export async function GetAllUserDataByPattern(): Promise<CacheUserData[]> {
   return result;
 }
 
-export async function SaveLeaderboard(rankname: string, data: any) {
-  return await SetRedisKeyData(GetLeaderboardKey(rankname), JSON.stringify(data));
-}
-
-export async function GetLeaderboard(rankname: string): Promise<any> {
-  try {
-    let cacheLeaderboard = await GetRedisKeyData(GetLeaderboardKey(rankname));
-    if(cacheLeaderboard) {
-      return JSON.parse(cacheLeaderboard);
-    }
-    return [];
-  }
-  catch( err) {
-    Logger.error(`Error GetLeaderboard rankname: ${rankname} err: ${err}`);
-  }
-}
-
-export async function SaveLeaderboard2(rankname: string, userId: string, data: number) {
-  await redisClient.zincrby(GetLeaderboardKey2(rankname), data, userId);
+export async function SaveLeaderboard(rankname: string, userId: string, data: number) {
+  await redisClient.zincrby(GetLeaderboardKey(rankname), data, userId);
 }
 
 export async function DeleteLeaderboard(rankname: string) {
-  await redisClient.del(GetLeaderboardKey2(rankname));
+  await redisClient.del(GetLeaderboardKey(rankname));
 }
 
 export async function GetLeaderboardTopRange(rankname: string, from: number, to: number) {
-  const raw = await redisClient.zrevrange(GetLeaderboardKey2(rankname), from, to - 1, 'WITHSCORES');
+  const raw = await redisClient.zrevrange(GetLeaderboardKey(rankname), from, to - 1, 'WITHSCORES');
   const result = [];
   for (let i = 0; i < raw.length; i += 2) {
     const userData = await GetUserData(raw[i]);
@@ -183,8 +166,8 @@ export async function GetLeaderboardTopRange(rankname: string, from: number, to:
 }
 
 export async function GetUserRank(rankname: string, userId: string, username: string | undefined) {
-  const rank = await redisClient.zrevrank(GetLeaderboardKey2(rankname), userId);
-  const score = await redisClient.zscore(GetLeaderboardKey2(rankname), userId);
+  const rank = await redisClient.zrevrank(GetLeaderboardKey(rankname), userId);
+  const score = await redisClient.zscore(GetLeaderboardKey(rankname), userId);
 
   if (rank === null) {
     return { username, userId, rank: 0, value: 0 };
@@ -199,7 +182,7 @@ export async function GetUserRank(rankname: string, userId: string, username: st
 }
 
 export async function GetLeaderboardSize(rankname: string): Promise<number> {
-  const size = await redisClient.zcard(GetLeaderboardKey2(rankname));
+  const size = await redisClient.zcard(GetLeaderboardKey(rankname));
   return size;
 }
 

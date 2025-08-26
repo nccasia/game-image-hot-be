@@ -2,7 +2,7 @@ import { Logger } from '../logger/winston-logger.config';
 import { SaveUserData } from './redis.utils';
 import { app_constant, CURRENCY_TYPE, ACHIEVEMENT_TYPE, TUTORIAL_ACTION, BASIC_QUEST_TYPE, DAILY_QUEST_TYPE , LEADERBOARD_TYPE } from '../config/constant';
 import { isSameDay, getTimeAtStartOfDay, getTimeAtStartOfWeek } from '../utils/helper';
-import { SaveLeaderboard2 } from './redis.utils';
+import { SaveLeaderboard } from './redis.utils';
 
 interface CacheData {
   _id: string;
@@ -599,9 +599,9 @@ export class CacheUserData {
       this.user_stats.total_game_win += 1;
       this.user_stats.daily_game_win += 1;
       this.user_stats.weekly_game_win += 1;
-      await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GAME_WIN, this.userId, 1);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GAME_WIN, this.userId, 1);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GAME_WIN, this.userId, 1);
+      await SaveLeaderboard(LEADERBOARD_TYPE.TOTAL_GAME_WIN, this.userId, 1);
+      await SaveLeaderboard(LEADERBOARD_TYPE.DAILY_GAME_WIN, this.userId, 1);
+      await SaveLeaderboard(LEADERBOARD_TYPE.WEEKLY_GAME_WIN, this.userId, 1);
 
       if(currencyType == CURRENCY_TYPE.TOKEN) {
         this.user_stats.total_gold_earn += amount;
@@ -611,13 +611,13 @@ export class CacheUserData {
         this.user_stats.daily_gold_change += amount;
         this.user_stats.weekly_gold_change += amount;
 
-        await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, this.userId, amount);
-        await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, this.userId, amount);
-        await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, this.userId, amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, this.userId, amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, this.userId, amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, this.userId, amount);
 
-        await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_EARN, this.userId, amount);
-        await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_EARN, this.userId, amount);
-        await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_EARN, this.userId, amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.TOTAL_GOLD_EARN, this.userId, amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_EARN, this.userId, amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_EARN, this.userId, amount);
       }
       else {
         await this.EarnCurrency(currencyType, amount, false);
@@ -626,9 +626,9 @@ export class CacheUserData {
         this.user_stats.daily_candy_change += amount;
         this.user_stats.weekly_candy_change += amount;
 
-        await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_CANDY_CHANGE, this.userId, amount);
-        await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_CANDY_CHANGE, this.userId, amount);
-        await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_CANDY_CHANGE, this.userId, amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.TOTAL_CANDY_CHANGE, this.userId, amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.DAILY_CANDY_CHANGE, this.userId, amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.WEEKLY_CANDY_CHANGE, this.userId, amount);
       }
 
       let dailyWins = await this.UpdateDailyQuestData(DAILY_QUEST_TYPE.DAILY_WIN, this.user_stats.daily_game_win);
@@ -639,9 +639,9 @@ export class CacheUserData {
       this.user_stats.total_game_lose += 1;
       this.user_stats.daily_game_lose += 1;
       this.user_stats.weekly_game_lose += 1;
-      await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GAME_LOSE, this.userId, 1);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GAME_LOSE, this.userId, 1);
-      await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GAME_LOSE, this.userId, 1);
+      await SaveLeaderboard(LEADERBOARD_TYPE.TOTAL_GAME_LOSE, this.userId, 1);
+      await SaveLeaderboard(LEADERBOARD_TYPE.DAILY_GAME_LOSE, this.userId, 1);
+      await SaveLeaderboard(LEADERBOARD_TYPE.WEEKLY_GAME_LOSE, this.userId, 1);
 
       if(currencyType == CURRENCY_TYPE.TOKEN) {
         this.user_stats.total_gold_lose += amount;
@@ -651,13 +651,13 @@ export class CacheUserData {
         this.user_stats.daily_gold_change -= amount;
         this.user_stats.weekly_gold_change -= amount;
 
-        await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, this.userId, -amount);
-        await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, this.userId, -amount);
-        await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, this.userId, -amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, this.userId, -amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, this.userId, -amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, this.userId, -amount);
 
-        await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_GOLD_LOSE, this.userId, -amount);
-        await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_GOLD_LOSE, this.userId, -amount);
-        await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE, this.userId, -amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.TOTAL_GOLD_LOSE, this.userId, -amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_LOSE, this.userId, -amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_LOSE, this.userId, -amount);
       }
       else {
         await this.SpendCurrency(currencyType, amount, false);
@@ -666,9 +666,9 @@ export class CacheUserData {
         this.user_stats.daily_candy_change -= amount;
         this.user_stats.weekly_candy_change -= amount;
 
-        await SaveLeaderboard2(LEADERBOARD_TYPE.TOTAL_CANDY_CHANGE, this.userId, -amount);
-        await SaveLeaderboard2(LEADERBOARD_TYPE.DAILY_CANDY_CHANGE, this.userId, -amount);
-        await SaveLeaderboard2(LEADERBOARD_TYPE.WEEKLY_CANDY_CHANGE, this.userId, -amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.TOTAL_CANDY_CHANGE, this.userId, -amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.DAILY_CANDY_CHANGE, this.userId, -amount);
+        await SaveLeaderboard(LEADERBOARD_TYPE.WEEKLY_CANDY_CHANGE, this.userId, -amount);
       }
     }
     this.user_stats.daily_game++;
