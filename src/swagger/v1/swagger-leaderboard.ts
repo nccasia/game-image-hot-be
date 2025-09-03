@@ -67,6 +67,9 @@ const swaggerLeaderboard = {
                               $ref: "#/components/schemas/leaderboardItem",
                             },
                           },
+                          myRank: {
+                            $ref: "#/components/schemas/leaderboardItem",
+                          },
                           total: {
                             type: "integer",
                             example: 1,
@@ -74,9 +77,6 @@ const swaggerLeaderboard = {
                           currentPage: {
                             type: "integer",
                             example: 1,
-                          },
-                          nextRefreshTime: {
-                            $ref: "#/components/schemas/dateTimeStr",
                           },
                         },
                       },
@@ -101,11 +101,11 @@ const swaggerLeaderboard = {
                   },
                 },
                 error2: {
-                  summary: "INVALID_RANK",
+                  summary: "INVALID_LEADERBOARD",
                   value: {
                     serverTime: "2024-04-15T07:32:01.190Z",
-                    error_code: 25,
-                    error_message: "INVALID_RANK",
+                    error_code: 36,
+                    error_message: "INVALID_LEADERBOARD",
                   },
                 },
                 error3: {

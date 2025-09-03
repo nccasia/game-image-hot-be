@@ -2,7 +2,7 @@ import { Logger } from '../logger/winston-logger.config';
 import cron from 'node-cron';
 import { app_constant, LEADERBOARD_TYPE } from '../config/constant';
 import { getTimeAtStartOfDay, getTimeAtStartOfWeek } from '../utils/helper';
-import { GetAllUserDataByPattern, SaveLeaderboard, DeleteLeaderboard, GetLeaderboardTopRange } from '../redis/redis.utils';
+import { DeleteLeaderboard, GetLeaderboardTopRange } from '../redis/redis.utils';
 import { formatDateYYYYMMDD, writeDataToCSV } from '../utils/helper';
 import Leaderboard from '../models/Leaderboard';
 
@@ -63,42 +63,6 @@ async function SaveLeaderboardAndExportToCSV(leaderboardName: string, data: any[
 }
 
 export async function startCronJobs() {
-  // Run every minute
-  // cron.schedule('55 * * * *', async () => {
-  //   let resetDaily = getTimeAtStartOfDay(app_constant.gameParameter.timeZone);
-  //   let resetWeekly = getTimeAtStartOfWeek(app_constant.gameParameter.timeZone);
-
-  //   console.log('⏰ Running task every hour at minute 55: ', new Date().toISOString());
-  //   try {
-  //     const userDataList = await GetAllUserDataByPattern();
-  //     //await BackupTotalGoldEarnLeaderboard(userDataList, resetWeekly);
-  //     //await BackupDailyGoldEarnLeaderboard(userDataList, resetDaily);
-  //     //await BackupWeeklyGoldEarnLeaderboard(userDataList, resetWeekly);
-
-  //     //await BackupTotalGoldLoseLeaderboard(userDataList, resetWeekly);
-  //     //await BackupDailyGoldLoseLeaderboard(userDataList, resetDaily);
-  //     //await BackupWeeklyGoldLoseLeaderboard(userDataList, resetWeekly);
-
-  //     //await BackupTotalGameWinLeaderboard(userDataList, resetWeekly);
-  //     //await BackupDailyGameWinLeaderboard(userDataList, resetDaily);
-  //     //await BackupWeeklyGameWinLeaderboard(userDataList, resetWeekly);
-
-  //     //await BackupTotalGameLoseLeaderboard(userDataList, resetWeekly);
-  //     //await BackupDailyGameLoseLeaderboard(userDataList, resetDaily);
-  //     //await BackupWeeklyGameLoseLeaderboard(userDataList, resetWeekly);
-
-  //     //await BackupTotalGoldChangeLeaderboard(userDataList, resetWeekly);
-  //     //await BackupDailyGoldChangeLeaderboard(userDataList, resetDaily);
-  //     //await BackupWeeklyGoldChangeLeaderboard(userDataList, resetWeekly);
-
-  //     //await BackupLeaderboard(LEADERBOARD_TYPE.TOTAL_GOLD_CHANGE, resetWeekly);
-  //     //await BackupLeaderboard(LEADERBOARD_TYPE.DAILY_GOLD_CHANGE, resetDaily);
-  //     //await BackupLeaderboard(LEADERBOARD_TYPE.WEEKLY_GOLD_CHANGE, resetWeekly);
-  //   } catch (err) {
-  //     Logger.error(`Error cron job err: ${err}`);
-  //   }
-  // });
-
   cron.schedule('0 0 * * *', async () => {
     let resetDaily = getTimeAtStartOfDay(app_constant.gameParameter.timeZone);
     Logger.info('🧹 Resetting daily leaderboard', new Date().toISOString());

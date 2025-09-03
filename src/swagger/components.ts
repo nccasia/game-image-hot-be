@@ -440,7 +440,7 @@ const components = {
       UserTutorialData: {
         type: "object",
         properties: {
-          user_tutorial_id: {
+          tutorial_id: {
             type: "integer",
             example: 1,
           },
@@ -606,24 +606,23 @@ const components = {
         },
       },
       leaderboardItem: {
-        allOf: [
-          {
-            $ref: "#/components/schemas/userSimpleData",
+        type: "object",
+        properties: {
+          userId: {
+            type: "string",
           },
-          {
-            type: "object",
-            properties: {
-              value: {
-                type: "number",
-                example: 1,
-              },
-              rank: {
-                type: "integer",
-                example: 1,
-              },
-            }
-          }
-        ],
+          username: {
+            type: "string",
+          },
+          value: {
+            type: "number",
+            example: 1.1,
+          },
+          rank: {
+            type: "integer",
+            example: 1,
+          },
+        }
       },
     },
   },

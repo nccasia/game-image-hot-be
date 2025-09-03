@@ -107,6 +107,7 @@ UserDataSchema.methods.getInfo = function getInfo() {
     user_basic_quest: this.user_basic_quest,
     user_daily_quest: this.user_daily_quest,
     user_coupon: this.user_coupon,
+    user_tutorial: this.user_tutorial,
   };
 };
 
@@ -448,7 +449,7 @@ UserDataSchema.methods.UpdateAchievementAmount = async function UpdateAchievemen
  * @returns 
  */
 UserDataSchema.methods.GetTutorial = function GetTutorial(tutorial_id: number) {
-  return this.user_tutorial.find((element: any) => element.user_tutorial_id === tutorial_id);
+  return this.user_tutorial.find((element: any) => element.tutorial_id === tutorial_id);
 }
 
 /**
@@ -473,7 +474,7 @@ UserDataSchema.methods.updateTutorial = async function updateTutorial(tutorial_i
   userTutorial.action_type = action_type;
   if(action_type == TUTORIAL_ACTION.FINISHED) {
     userTutorial.recorded = 1;
-    result = this.user_tutorial.filter((element: any) => element.user_tutorial_id < tutorial_id && element.action_type != TUTORIAL_ACTION.FINISHED);
+    result = this.user_tutorial.filter((element: any) => element.tutorial_id < tutorial_id && element.action_type != TUTORIAL_ACTION.FINISHED);
     for(let tutorial of result) {
       tutorial.action_type = action_type;
       tutorial.recorded = 1;
@@ -490,7 +491,7 @@ UserDataSchema.methods.updateTutorial = async function updateTutorial(tutorial_i
  * @param {*} tutorial_name 
  * @returns 
  */
-UserDataSchema.methods.IsTutorialFinished = function IsTutorialFinished(tutorial_name = "Wave3LikeBubble") {
+UserDataSchema.methods.IsTutorialFinished = function IsTutorialFinished(tutorial_name = "TT_Gameplay_Ending3") {
   let tutorial = this.GetTutorialByName(tutorial_name);
   if(tutorial != null) {
     return tutorial.action_type == TUTORIAL_ACTION.FINISHED;

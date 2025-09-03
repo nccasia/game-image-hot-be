@@ -340,7 +340,7 @@ export class CacheUserData {
    * @returns 
    */
   GetTutorial(tutorial_id: number) {
-    return this.user_tutorial.find((element: any) => element.user_tutorial_id === tutorial_id);
+    return this.user_tutorial.find((element: any) => element.tutorial_id === tutorial_id);
   }
   
   /**
@@ -365,7 +365,7 @@ export class CacheUserData {
     userTutorial.action_type = action_type;
     if(action_type == TUTORIAL_ACTION.FINISHED) {
       userTutorial.recorded = 1;
-      result = this.user_tutorial.filter((element: any) => element.user_tutorial_id < tutorial_id && element.action_type != TUTORIAL_ACTION.FINISHED);
+      result = this.user_tutorial.filter((element: any) => element.tutorial_id < tutorial_id && element.action_type != TUTORIAL_ACTION.FINISHED);
       for(let tutorial of result) {
         tutorial.action_type = action_type;
         tutorial.recorded = 1;
@@ -382,7 +382,7 @@ export class CacheUserData {
    * @param {*} tutorial_name 
    * @returns 
    */
-  IsTutorialFinished(tutorial_name = "Wave3LikeBubble") {
+  IsTutorialFinished(tutorial_name: string = "TT_Gameplay_Ending3"): Boolean {
     let tutorial = this.GetTutorialByName(tutorial_name);
     if(tutorial != null) {
       return tutorial.action_type == TUTORIAL_ACTION.FINISHED;
