@@ -31,8 +31,13 @@ export function hex(bytes: Buffer): string {
   return bytes.toString('hex');
 }
 
+export function createMD5Hash(input: string) {
+  return crypto.createHash("md5").update(input).digest("hex");
+}
+
 export function GenerateHash(data: string) {
-  const secret_key = HMAC_SHA256(process.env.BOT_TOKEN || "", 'WebAppData');
+  const hashToken = createMD5Hash(process.env.BOT_TOKEN || "");
+  const secret_key = HMAC_SHA256(hashToken, 'WebAppData');
   //console.log(secret_key);
   //console.log(`BOT_TOKEN: ${process.env.BOT_TOKEN}`);
 	// const data_keys = Object.keys(data).filter(v => v !== 'hash').sort();
