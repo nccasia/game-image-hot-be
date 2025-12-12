@@ -200,14 +200,14 @@ export const loginMezon = async (req: Request, res: Response, next: NextFunction
       return;
     }
 
-    const userServerData = await LoginMezonInUserServer(authData);
-    if(userServerData.errorCode != 0) {
-      Logger.error(`Error loginMezon Auth Mezon Account Failed ${ErrorMessage.VALIDATE_HASH_FAILED} userid: ${userid} username: ${username} isVerifyAuthorization: ${isVerifyAuthorization} hash: ${hash} hashGenerate: ${hashGenerate}`);
-      res.status(HttpStatusCode.BAD_REQUEST).json(
-        SendErrorMessage(ErrorCode.VALIDATE_HASH_FAILED, ErrorMessage.VALIDATE_HASH_FAILED)
-      );
-      return;
-    }
+    // const userServerData = await LoginMezonInUserServer(authData);
+    // if(userServerData.errorCode != 0) {
+    //   Logger.error(`Error loginMezon Auth Mezon Account Failed ${ErrorMessage.VALIDATE_HASH_FAILED} userid: ${userid} username: ${username} isVerifyAuthorization: ${isVerifyAuthorization} hash: ${hash} hashGenerate: ${hashGenerate}`);
+    //   res.status(HttpStatusCode.BAD_REQUEST).json(
+    //     SendErrorMessage(ErrorCode.VALIDATE_HASH_FAILED, ErrorMessage.VALIDATE_HASH_FAILED)
+    //   );
+    //   return;
+    // }
 
     // Validate if user exist in our database
     let user = await User.findOne({ mezonId: userid });
